@@ -1,0 +1,529 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global safety net: default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Primitive Helpers ---
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedSignedIn() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isBootstrappedAdmin() {
+      return isVerifiedSignedIn() && request.auth.token.email == 'sumitsanjaypandey910@gmail.com';
+    }
+
+    function isAdmin() {
+      return isBootstrappedAdmin() || (isVerifiedSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
+    }
+
+    function isBoundedUidList(uids) {
+      return uids is list && uids.size() > 0 && uids.size() <= 25 && uids[0] is string && isValidId(uids[0]);
+    }
+
+    function isParlourMember(parlourId) {
+      return isVerifiedSignedIn()
+        && exists(/databases/$(database)/documents/parlours/$(parlourId)/members/$(request.auth.uid))
+        && get(/databases/$(database)/documents/parlours/$(parlourId)/members/$(request.auth.uid)).data.status == 'active';
+    }
+
+    function isParlourOwner(parlourId) {
+      return isVerifiedSignedIn() && (
+        get(/databases/$(database)/documents/parlours/$(parlourId)).data.ownerUid == request.auth.uid
+        || (
+          exists(/databases/$(database)/documents/parlours/$(parlourId)/members/$(request.auth.uid))
+          && get(/databases/$(database)/documents/parlours/$(parlourId)/members/$(request.auth.uid)).data.role == 'owner'
+          && get(/databases/$(database)/documents/parlours/$(parlourId)/members/$(request.auth.uid)).data.status == 'active'
+        )
+      );
+    }
+
+    function hasListAccess(data) {
+      return isVerifiedSignedIn() && (
+        isBootstrappedAdmin()
+        || data.ownerUid == request.auth.uid
+        || (data.memberUids is list && request.auth.uid in data.memberUids)
+      );
+    }
+
+    // --- Validation Blueprints ---
+    function isValidParlour(data) {
+      return data.keys().hasAll(['name', 'city', 'plan', 'ownerUid', 'memberUids', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['name', 'city', 'plan', 'ownerUid', 'memberUids', 'ownerEmail', 'phone', 'currency', 'taxRate', 'status', 'createdAt', 'updatedAt'])
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 100
+        && data.city is string && data.city.size() >= 2 && data.city.size() <= 80
+        && data.plan in ['Boutique', 'Studio Pro', 'Enterprise']
+        && isValidId(data.ownerUid)
+        && isBoundedUidList(data.memberUids)
+        && data.status in ['active', 'trial', 'suspended']
+        && (!('ownerEmail' in data) || (data.ownerEmail is string && data.ownerEmail.size() <= 160))
+        && (!('phone' in data) || (data.phone is string && data.phone.size() <= 32))
+        && (!('currency' in data) || (data.currency is string && data.currency.size() <= 8))
+        && (!('taxRate' in data) || (data.taxRate is number && data.taxRate >= 0 && data.taxRate <= 40))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidMember(data) {
+      return data.keys().hasAll(['uid', 'email', 'displayName', 'role', 'status', 'ownerUid', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'email', 'displayName', 'role', 'status', 'ownerUid', 'createdAt', 'updatedAt'])
+        && isValidId(data.uid)
+        && isValidId(data.ownerUid)
+        && data.email is string && data.email.size() <= 160
+        && data.displayName is string && data.displayName.size() <= 100
+        && data.role in ['owner', 'staff']
+        && data.status in ['active', 'invited', 'revoked']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidCustomer(data, parlourId) {
+      return data.keys().hasAll(['parlourId', 'ownerUid', 'memberUids', 'fullName', 'phone', 'segment', 'whatsappConsent', 'createdByUid', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['parlourId', 'ownerUid', 'memberUids', 'fullName', 'phone', 'email', 'dob', 'segment', 'preferences', 'staffNotes', 'whatsappConsent', 'registeredAt', 'createdByUid', 'createdAt', 'updatedAt'])
+        && data.parlourId == parlourId
+        && isValidId(data.parlourId)
+        && isValidId(data.ownerUid)
+        && isBoundedUidList(data.memberUids)
+        && data.fullName is string && data.fullName.size() >= 2 && data.fullName.size() <= 120
+        && data.phone is string && data.phone.size() >= 5 && data.phone.size() <= 32
+        && data.segment in ['VIP', 'Regular', 'New', 'At Risk']
+        && data.whatsappConsent is bool
+        && isValidId(data.createdByUid)
+        && (!('email' in data) || (data.email is string && data.email.size() <= 160))
+        && (!('dob' in data) || (data.dob is string && data.dob.size() <= 20))
+        && (!('preferences' in data) || (data.preferences is string && data.preferences.size() <= 500))
+        && (!('staffNotes' in data) || (data.staffNotes is string && data.staffNotes.size() <= 1000))
+        && (!('registeredAt' in data) || (data.registeredAt is string && data.registeredAt.size() <= 32))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidService(data, parlourId) {
+      return data.keys().hasAll(['parlourId', 'ownerUid', 'memberUids', 'name', 'category', 'price', 'durationMin', 'active', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['parlourId', 'ownerUid', 'memberUids', 'name', 'description', 'category', 'price', 'durationMin', 'active', 'createdAt', 'updatedAt'])
+        && data.parlourId == parlourId
+        && isValidId(data.parlourId)
+        && isValidId(data.ownerUid)
+        && isBoundedUidList(data.memberUids)
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 120
+        && (!('description' in data) || (data.description is string && data.description.size() <= 500))
+        && data.category in ['Facial Treatments', 'Hair Treatments', 'Cleanup Services', 'Bridal Packages', 'Skin-Care Packages', 'Beauty Consultations', 'Custom']
+        && data.price is number && data.price >= 0 && data.price <= 1000000
+        && data.durationMin is number && data.durationMin >= 5 && data.durationMin <= 600
+        && data.active is bool
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidAppointment(data, parlourId) {
+      return data.keys().hasAll(['parlourId', 'ownerUid', 'memberUids', 'customerId', 'customerName', 'serviceId', 'serviceName', 'staffId', 'staffName', 'date', 'time', 'durationMin', 'price', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['parlourId', 'ownerUid', 'memberUids', 'customerId', 'customerName', 'serviceId', 'serviceName', 'staffId', 'staffName', 'date', 'time', 'durationMin', 'price', 'status', 'notes', 'createdAt', 'updatedAt'])
+        && data.parlourId == parlourId
+        && isValidId(data.parlourId)
+        && isValidId(data.ownerUid)
+        && isBoundedUidList(data.memberUids)
+        && isValidId(data.customerId)
+        && data.customerName is string && data.customerName.size() <= 120
+        && isValidId(data.serviceId)
+        && data.serviceName is string && data.serviceName.size() <= 120
+        && isValidId(data.staffId)
+        && data.staffName is string && data.staffName.size() <= 100
+        && data.date is string && data.date.size() <= 20
+        && data.time is string && data.time.size() <= 16
+        && data.durationMin is number && data.durationMin >= 5 && data.durationMin <= 600
+        && data.price is number && data.price >= 0 && data.price <= 1000000
+        && data.status in ['Pending', 'Confirmed', 'Completed', 'Cancelled']
+        && (!('notes' in data) || (data.notes is string && data.notes.size() <= 500))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidStaff(data, parlourId) {
+      return data.keys().hasAll(['parlourId', 'ownerUid', 'memberUids', 'name', 'role', 'attendanceStatus', 'completedCount', 'rating', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['parlourId', 'ownerUid', 'memberUids', 'name', 'role', 'phone', 'attendanceStatus', 'completedCount', 'rating', 'createdAt', 'updatedAt'])
+        && data.parlourId == parlourId
+        && isValidId(data.parlourId)
+        && isValidId(data.ownerUid)
+        && isBoundedUidList(data.memberUids)
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 100
+        && data.role in ['Parlour Owner', 'Lead Aesthetician', 'Hair Specialist', 'Makeup & Bridal Artist', 'Front Desk Coordinator']
+        && (!('phone' in data) || (data.phone is string && data.phone.size() <= 32))
+        && data.attendanceStatus in ['Clocked In', 'On Break', 'Off Duty']
+        && data.completedCount is number && data.completedCount >= 0
+        && data.rating is number && data.rating >= 0 && data.rating <= 5
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidInvoice(data, parlourId) {
+      return data.keys().hasAll(['parlourId', 'ownerUid', 'memberUids', 'invoiceNumber', 'customerId', 'customerName', 'subtotal', 'discount', 'taxAmount', 'total', 'paymentMethod', 'paymentStatus', 'issuedAt', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['parlourId', 'ownerUid', 'memberUids', 'invoiceNumber', 'customerId', 'customerName', 'subtotal', 'discount', 'taxAmount', 'total', 'paymentMethod', 'paymentStatus', 'issuedAt', 'createdAt', 'updatedAt'])
+        && data.parlourId == parlourId
+        && isValidId(data.parlourId)
+        && isValidId(data.ownerUid)
+        && isBoundedUidList(data.memberUids)
+        && data.invoiceNumber is string && data.invoiceNumber.size() <= 40
+        && isValidId(data.customerId)
+        && data.customerName is string && data.customerName.size() <= 120
+        && data.subtotal is number && data.subtotal >= 0
+        && data.discount is number && data.discount >= 0
+        && data.taxAmount is number && data.taxAmount >= 0
+        && data.total is number && data.total >= 0
+        && data.paymentMethod in ['Card', 'UPI', 'Cash', 'Wallet']
+        && data.paymentStatus in ['Paid', 'Pending', 'Partial']
+        && data.issuedAt is string && data.issuedAt.size() <= 32
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidSkinScan(data, parlourId) {
+      return data.keys().hasAll(['parlourId', 'ownerUid', 'memberUids', 'customerId', 'customerName', 'scanDate', 'summary', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['parlourId', 'ownerUid', 'memberUids', 'customerId', 'customerName', 'scanDate', 'lightingCondition', 'summary', 'suggestedFollowUpDate', 'staffObservations', 'treatmentsReceived', 'productsUsed', 'createdAt', 'updatedAt'])
+        && data.parlourId == parlourId
+        && isValidId(data.parlourId)
+        && isValidId(data.ownerUid)
+        && isBoundedUidList(data.memberUids)
+        && isValidId(data.customerId)
+        && data.customerName is string && data.customerName.size() <= 120
+        && data.scanDate is string && data.scanDate.size() <= 32
+        && data.summary is string && data.summary.size() <= 2000
+        && (!('lightingCondition' in data) || (data.lightingCondition is string && data.lightingCondition.size() <= 120))
+        && (!('suggestedFollowUpDate' in data) || (data.suggestedFollowUpDate is string && data.suggestedFollowUpDate.size() <= 32))
+        && (!('staffObservations' in data) || (data.staffObservations is string && data.staffObservations.size() <= 1000))
+        && (!('treatmentsReceived' in data) || (data.treatmentsReceived is string && data.treatmentsReceived.size() <= 500))
+        && (!('productsUsed' in data) || (data.productsUsed is string && data.productsUsed.size() <= 500))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidCommunication(data, parlourId) {
+      return data.keys().hasAll(['parlourId', 'ownerUid', 'memberUids', 'customerId', 'customerName', 'channel', 'campaignType', 'message', 'consentVerified', 'sentAt', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['parlourId', 'ownerUid', 'memberUids', 'customerId', 'customerName', 'channel', 'campaignType', 'message', 'consentVerified', 'sentAt', 'createdAt', 'updatedAt'])
+        && data.parlourId == parlourId
+        && isValidId(data.parlourId)
+        && isValidId(data.ownerUid)
+        && isBoundedUidList(data.memberUids)
+        && isValidId(data.customerId)
+        && data.customerName is string && data.customerName.size() <= 120
+        && data.channel in ['WhatsApp', 'SMS', 'Email']
+        && data.campaignType in ['Follow-up', 'Appointment Reminder', 'Birthday', 'Promotion', 'Feedback']
+        && data.message is string && data.message.size() <= 1500
+        && data.consentVerified is bool
+        && data.sentAt is string && data.sentAt.size() <= 32
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // --- Collection Rules ---
+
+    // Connection test health document
+    match /test/connection {
+      allow get: if true;
+    }
+
+    // Super admin registry
+    match /admins/{adminUid} {
+      allow get: if isValidId(adminUid) && isVerifiedSignedIn() && (request.auth.uid == adminUid || isAdmin());
+    }
+
+    // Parlours tenant root
+    match /parlours/{parlourId} {
+      allow list: if hasListAccess(resource.data);
+      allow get: if isValidId(parlourId) && isVerifiedSignedIn() && (isAdmin() || isParlourMember(parlourId) || existing().ownerUid == request.auth.uid);
+
+      allow create: if isValidId(parlourId)
+        && isVerifiedSignedIn()
+        && isValidParlour(incoming())
+        && incoming().ownerUid == request.auth.uid
+        && request.auth.uid in incoming().memberUids
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isValidId(parlourId)
+        && isVerifiedSignedIn()
+        && isValidParlour(incoming())
+        && incoming().ownerUid == existing().ownerUid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin()
+          || (
+            isParlourOwner(parlourId)
+            && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'city', 'phone', 'currency', 'taxRate', 'memberUids', 'updatedAt'])
+          )
+        );
+
+      allow delete: if isValidId(parlourId) && isAdmin();
+
+      // Parlour RBAC members
+      match /members/{memberUid} {
+        allow list: if hasListAccess(resource.data);
+        allow get: if isValidId(parlourId) && isValidId(memberUid) && isVerifiedSignedIn() && (isAdmin() || request.auth.uid == memberUid || isParlourOwner(parlourId));
+
+        allow create: if isValidId(parlourId)
+          && isValidId(memberUid)
+          && isVerifiedSignedIn()
+          && isValidMember(incoming())
+          && incoming().uid == memberUid
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && (exists(/databases/$(database)/documents/parlours/$(parlourId)) || existsAfter(/databases/$(database)/documents/parlours/$(parlourId)))
+          && (
+            isAdmin()
+            || isParlourOwner(parlourId)
+            || (
+              memberUid == request.auth.uid
+              && incoming().role == 'owner'
+              && getAfter(/databases/$(database)/documents/parlours/$(parlourId)).data.ownerUid == request.auth.uid
+            )
+          );
+
+        allow update: if isValidId(parlourId)
+          && isValidId(memberUid)
+          && isVerifiedSignedIn()
+          && isValidMember(incoming())
+          && incoming().uid == existing().uid
+          && incoming().ownerUid == existing().ownerUid
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && (isAdmin() || isParlourOwner(parlourId))
+          && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'role', 'status', 'updatedAt']);
+
+        allow delete: if isValidId(parlourId) && isValidId(memberUid) && (isAdmin() || isParlourOwner(parlourId));
+      }
+
+      // Customer CRM profiles (PII protected)
+      match /customers/{customerId} {
+        allow list: if hasListAccess(resource.data);
+        allow get: if isValidId(parlourId) && isValidId(customerId) && isVerifiedSignedIn() && (isAdmin() || isParlourMember(parlourId));
+
+        allow create: if isValidId(parlourId)
+          && isValidId(customerId)
+          && isVerifiedSignedIn()
+          && isValidCustomer(incoming(), parlourId)
+          && incoming().createdByUid == request.auth.uid
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && (exists(/databases/$(database)/documents/parlours/$(parlourId)) || existsAfter(/databases/$(database)/documents/parlours/$(parlourId)))
+          && incoming().ownerUid == getAfter(/databases/$(database)/documents/parlours/$(parlourId)).data.ownerUid
+          && (isAdmin() || isParlourMember(parlourId) || incoming().ownerUid == request.auth.uid);
+
+        allow update: if isValidId(parlourId)
+          && isValidId(customerId)
+          && isVerifiedSignedIn()
+          && isValidCustomer(incoming(), parlourId)
+          && incoming().parlourId == existing().parlourId
+          && incoming().ownerUid == existing().ownerUid
+          && incoming().createdByUid == existing().createdByUid
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && (isAdmin() || isParlourMember(parlourId))
+          && (
+            isAdmin()
+            || incoming().diff(existing()).affectedKeys().hasOnly(['fullName', 'phone', 'email', 'dob', 'segment', 'preferences', 'staffNotes', 'whatsappConsent', 'updatedAt'])
+          );
+
+        allow delete: if isValidId(parlourId) && isValidId(customerId) && (isAdmin() || isParlourOwner(parlourId));
+      }
+
+      // Services & packages
+      match /services/{serviceId} {
+        allow list: if hasListAccess(resource.data);
+        allow get: if isValidId(parlourId) && isValidId(serviceId) && isVerifiedSignedIn() && (isAdmin() || isParlourMember(parlourId));
+
+        allow create: if isValidId(parlourId)
+          && isValidId(serviceId)
+          && isVerifiedSignedIn()
+          && isValidService(incoming(), parlourId)
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && (exists(/databases/$(database)/documents/parlours/$(parlourId)) || existsAfter(/databases/$(database)/documents/parlours/$(parlourId)))
+          && incoming().ownerUid == getAfter(/databases/$(database)/documents/parlours/$(parlourId)).data.ownerUid
+          && (isAdmin() || isParlourOwner(parlourId) || isParlourMember(parlourId) || incoming().ownerUid == request.auth.uid);
+
+        allow update: if isValidId(parlourId)
+          && isValidId(serviceId)
+          && isVerifiedSignedIn()
+          && isValidService(incoming(), parlourId)
+          && incoming().parlourId == existing().parlourId
+          && incoming().ownerUid == existing().ownerUid
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && (isAdmin() || isParlourOwner(parlourId))
+          && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'description', 'category', 'price', 'durationMin', 'active', 'updatedAt']);
+
+        allow delete: if isValidId(parlourId) && isValidId(serviceId) && (isAdmin() || isParlourOwner(parlourId));
+      }
+
+      // Appointments
+      match /appointments/{appointmentId} {
+        allow list: if hasListAccess(resource.data);
+        allow get: if isValidId(parlourId) && isValidId(appointmentId) && isVerifiedSignedIn() && (isAdmin() || isParlourMember(parlourId));
+
+        allow create: if isValidId(parlourId)
+          && isValidId(appointmentId)
+          && isVerifiedSignedIn()
+          && isValidAppointment(incoming(), parlourId)
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && (exists(/databases/$(database)/documents/parlours/$(parlourId)) || existsAfter(/databases/$(database)/documents/parlours/$(parlourId)))
+          && incoming().ownerUid == getAfter(/databases/$(database)/documents/parlours/$(parlourId)).data.ownerUid
+          && (isAdmin() || isParlourMember(parlourId) || incoming().ownerUid == request.auth.uid);
+
+        allow update: if isValidId(parlourId)
+          && isValidId(appointmentId)
+          && isVerifiedSignedIn()
+          && isValidAppointment(incoming(), parlourId)
+          && incoming().parlourId == existing().parlourId
+          && incoming().ownerUid == existing().ownerUid
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && (isAdmin() || isParlourMember(parlourId))
+          && (
+            isAdmin()
+            || (
+              existing().status in ['Pending', 'Confirmed']
+              && incoming().diff(existing()).affectedKeys().hasOnly(['date', 'time', 'staffId', 'staffName', 'serviceId', 'serviceName', 'durationMin', 'price', 'status', 'notes', 'updatedAt'])
+            )
+          );
+
+        allow delete: if isValidId(parlourId) && isValidId(appointmentId) && (isAdmin() || isParlourOwner(parlourId));
+      }
+
+      // Staff profiles
+      match /staff/{staffId} {
+        allow list: if hasListAccess(resource.data);
+        allow get: if isValidId(parlourId) && isValidId(staffId) && isVerifiedSignedIn() && (isAdmin() || isParlourMember(parlourId));
+
+        allow create: if isValidId(parlourId)
+          && isValidId(staffId)
+          && isVerifiedSignedIn()
+          && isValidStaff(incoming(), parlourId)
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && (exists(/databases/$(database)/documents/parlours/$(parlourId)) || existsAfter(/databases/$(database)/documents/parlours/$(parlourId)))
+          && incoming().ownerUid == getAfter(/databases/$(database)/documents/parlours/$(parlourId)).data.ownerUid
+          && (isAdmin() || isParlourOwner(parlourId) || isParlourMember(parlourId) || incoming().ownerUid == request.auth.uid);
+
+        allow update: if isValidId(parlourId)
+          && isValidId(staffId)
+          && isVerifiedSignedIn()
+          && isValidStaff(incoming(), parlourId)
+          && incoming().parlourId == existing().parlourId
+          && incoming().ownerUid == existing().ownerUid
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && (
+            isAdmin()
+            || (isParlourOwner(parlourId) && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'role', 'phone', 'attendanceStatus', 'completedCount', 'rating', 'updatedAt']))
+            || (isParlourMember(parlourId) && incoming().diff(existing()).affectedKeys().hasOnly(['attendanceStatus', 'updatedAt']))
+          );
+
+        allow delete: if isValidId(parlourId) && isValidId(staffId) && (isAdmin() || isParlourOwner(parlourId));
+      }
+
+      // Invoices & payments (Terminal state locking when Paid)
+      match /invoices/{invoiceId} {
+        allow list: if hasListAccess(resource.data);
+        allow get: if isValidId(parlourId) && isValidId(invoiceId) && isVerifiedSignedIn() && (isAdmin() || isParlourMember(parlourId));
+
+        allow create: if isValidId(parlourId)
+          && isValidId(invoiceId)
+          && isVerifiedSignedIn()
+          && isValidInvoice(incoming(), parlourId)
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && (exists(/databases/$(database)/documents/parlours/$(parlourId)) || existsAfter(/databases/$(database)/documents/parlours/$(parlourId)))
+          && incoming().ownerUid == getAfter(/databases/$(database)/documents/parlours/$(parlourId)).data.ownerUid
+          && (isAdmin() || isParlourMember(parlourId) || incoming().ownerUid == request.auth.uid);
+
+        allow update: if isValidId(parlourId)
+          && isValidId(invoiceId)
+          && isVerifiedSignedIn()
+          && isValidInvoice(incoming(), parlourId)
+          && incoming().parlourId == existing().parlourId
+          && incoming().ownerUid == existing().ownerUid
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && (
+            isAdmin()
+            || (
+              isParlourMember(parlourId)
+              && existing().paymentStatus != 'Paid'
+              && incoming().diff(existing()).affectedKeys().hasOnly(['paymentStatus', 'paymentMethod', 'updatedAt'])
+            )
+          );
+
+        allow delete: if isValidId(parlourId) && isValidId(invoiceId) && (isAdmin() || isParlourOwner(parlourId));
+      }
+
+      // Skin scans
+      match /skinScans/{scanId} {
+        allow list: if hasListAccess(resource.data);
+        allow get: if isValidId(parlourId) && isValidId(scanId) && isVerifiedSignedIn() && (isAdmin() || isParlourMember(parlourId));
+
+        allow create: if isValidId(parlourId)
+          && isValidId(scanId)
+          && isVerifiedSignedIn()
+          && isValidSkinScan(incoming(), parlourId)
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && (exists(/databases/$(database)/documents/parlours/$(parlourId)) || existsAfter(/databases/$(database)/documents/parlours/$(parlourId)))
+          && incoming().ownerUid == getAfter(/databases/$(database)/documents/parlours/$(parlourId)).data.ownerUid
+          && (isAdmin() || isParlourMember(parlourId) || incoming().ownerUid == request.auth.uid);
+
+        allow update: if isValidId(parlourId)
+          && isValidId(scanId)
+          && isVerifiedSignedIn()
+          && isValidSkinScan(incoming(), parlourId)
+          && incoming().parlourId == existing().parlourId
+          && incoming().ownerUid == existing().ownerUid
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && (isAdmin() || isParlourMember(parlourId))
+          && incoming().diff(existing()).affectedKeys().hasOnly(['staffObservations', 'treatmentsReceived', 'productsUsed', 'suggestedFollowUpDate', 'updatedAt']);
+
+        allow delete: if isValidId(parlourId) && isValidId(scanId) && (isAdmin() || isParlourOwner(parlourId));
+      }
+
+      // Communication logs
+      match /communications/{commId} {
+        allow list: if hasListAccess(resource.data);
+        allow get: if isValidId(parlourId) && isValidId(commId) && isVerifiedSignedIn() && (isAdmin() || isParlourMember(parlourId));
+
+        allow create: if isValidId(parlourId)
+          && isValidId(commId)
+          && isVerifiedSignedIn()
+          && isValidCommunication(incoming(), parlourId)
+          && incoming().consentVerified == true
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && (exists(/databases/$(database)/documents/parlours/$(parlourId)) || existsAfter(/databases/$(database)/documents/parlours/$(parlourId)))
+          && incoming().ownerUid == getAfter(/databases/$(database)/documents/parlours/$(parlourId)).data.ownerUid
+          && (isAdmin() || isParlourMember(parlourId) || incoming().ownerUid == request.auth.uid);
+
+        allow update: if false;
+        allow delete: if isValidId(parlourId) && isValidId(commId) && (isAdmin() || isParlourOwner(parlourId));
+      }
+    }
+  }
+}

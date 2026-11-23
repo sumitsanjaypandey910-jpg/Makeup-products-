@@ -1,0 +1,6 @@
+{
+  "name": "BeautyOS",
+  "description": "AI-powered multi-tenant SaaS management, CRM, billing, and cosmetic skin intelligence platform for beauty parlours and studios.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

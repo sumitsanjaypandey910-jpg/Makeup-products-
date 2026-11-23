@@ -1,0 +1,229 @@
+{
+  "entities": {
+    "Parlour": {
+      "title": "Parlour",
+      "description": "Multi-tenant beauty parlour studio workspace",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "city": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "plan": { "type": "string", "enum": ["Boutique", "Studio Pro", "Enterprise"] },
+        "ownerUid": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "memberUids": { "type": "array", "description": "Bounded list of member UIDs (max 25)" },
+        "ownerEmail": { "type": "string", "maxLength": 160 },
+        "phone": { "type": "string", "maxLength": 32 },
+        "currency": { "type": "string", "maxLength": 8 },
+        "taxRate": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "trial", "suspended"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "city", "plan", "ownerUid", "memberUids", "status", "createdAt", "updatedAt"]
+    },
+    "ParlourMember": {
+      "title": "ParlourMember",
+      "description": "Authorized user membership and role within a parlour tenant",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 160 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "role": { "type": "string", "enum": ["owner", "staff"] },
+        "status": { "type": "string", "enum": ["active", "invited", "revoked"] },
+        "ownerUid": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "displayName", "role", "status", "ownerUid", "createdAt", "updatedAt"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Beauty parlour customer CRM profile",
+      "type": "object",
+      "properties": {
+        "parlourId": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "ownerUid": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "memberUids": { "type": "array" },
+        "fullName": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "phone": { "type": "string", "minLength": 5, "maxLength": 32 },
+        "email": { "type": "string", "maxLength": 160 },
+        "dob": { "type": "string", "maxLength": 20 },
+        "segment": { "type": "string", "enum": ["VIP", "Regular", "New", "At Risk"] },
+        "preferences": { "type": "string", "maxLength": 500 },
+        "staffNotes": { "type": "string", "maxLength": 1000 },
+        "whatsappConsent": { "type": "boolean" },
+        "registeredAt": { "type": "string", "maxLength": 32 },
+        "createdByUid": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["parlourId", "ownerUid", "memberUids", "fullName", "phone", "segment", "whatsappConsent", "createdByUid", "createdAt", "updatedAt"]
+    },
+    "ServiceItem": {
+      "title": "ServiceItem",
+      "description": "Parlour service or package offering",
+      "type": "object",
+      "properties": {
+        "parlourId": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "ownerUid": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "memberUids": { "type": "array" },
+        "name": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "description": { "type": "string", "maxLength": 500 },
+        "category": { "type": "string", "enum": ["Facial Treatments", "Hair Treatments", "Cleanup Services", "Bridal Packages", "Skin-Care Packages", "Beauty Consultations", "Custom"] },
+        "price": { "type": "number" },
+        "durationMin": { "type": "number" },
+        "active": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["parlourId", "ownerUid", "memberUids", "name", "category", "price", "durationMin", "active", "createdAt", "updatedAt"]
+    },
+    "Appointment": {
+      "title": "Appointment",
+      "description": "Scheduled salon appointment",
+      "type": "object",
+      "properties": {
+        "parlourId": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "ownerUid": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "memberUids": { "type": "array" },
+        "customerId": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 120 },
+        "serviceId": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "serviceName": { "type": "string", "maxLength": 120 },
+        "staffId": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "staffName": { "type": "string", "maxLength": 100 },
+        "date": { "type": "string", "maxLength": 20 },
+        "time": { "type": "string", "maxLength": 16 },
+        "durationMin": { "type": "number" },
+        "price": { "type": "number" },
+        "status": { "type": "string", "enum": ["Pending", "Confirmed", "Completed", "Cancelled"] },
+        "notes": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["parlourId", "ownerUid", "memberUids", "customerId", "customerName", "serviceId", "serviceName", "staffId", "staffName", "date", "time", "durationMin", "price", "status", "createdAt", "updatedAt"]
+    },
+    "StaffProfile": {
+      "title": "StaffProfile",
+      "description": "Parlour staff specialist profile",
+      "type": "object",
+      "properties": {
+        "parlourId": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "ownerUid": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "memberUids": { "type": "array" },
+        "name": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "role": { "type": "string", "enum": ["Parlour Owner", "Lead Aesthetician", "Hair Specialist", "Makeup & Bridal Artist", "Front Desk Coordinator"] },
+        "phone": { "type": "string", "maxLength": 32 },
+        "attendanceStatus": { "type": "string", "enum": ["Clocked In", "On Break", "Off Duty"] },
+        "completedCount": { "type": "number" },
+        "rating": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["parlourId", "ownerUid", "memberUids", "name", "role", "attendanceStatus", "completedCount", "rating", "createdAt", "updatedAt"]
+    },
+    "Invoice": {
+      "title": "Invoice",
+      "description": "Customer billing invoice and payment record",
+      "type": "object",
+      "properties": {
+        "parlourId": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "ownerUid": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "memberUids": { "type": "array" },
+        "invoiceNumber": { "type": "string", "maxLength": 40 },
+        "customerId": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 120 },
+        "subtotal": { "type": "number" },
+        "discount": { "type": "number" },
+        "taxAmount": { "type": "number" },
+        "total": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["Card", "UPI", "Cash", "Wallet"] },
+        "paymentStatus": { "type": "string", "enum": ["Paid", "Pending", "Partial"] },
+        "issuedAt": { "type": "string", "maxLength": 32 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["parlourId", "ownerUid", "memberUids", "invoiceNumber", "customerId", "customerName", "subtotal", "discount", "taxAmount", "total", "paymentMethod", "paymentStatus", "issuedAt", "createdAt", "updatedAt"]
+    },
+    "SkinScanRecord": {
+      "title": "SkinScanRecord",
+      "description": "Cosmetic facial skin observation and progress record",
+      "type": "object",
+      "properties": {
+        "parlourId": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "ownerUid": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "memberUids": { "type": "array" },
+        "customerId": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 120 },
+        "scanDate": { "type": "string", "maxLength": 32 },
+        "lightingCondition": { "type": "string", "maxLength": 120 },
+        "summary": { "type": "string", "maxLength": 2000 },
+        "suggestedFollowUpDate": { "type": "string", "maxLength": 32 },
+        "staffObservations": { "type": "string", "maxLength": 1000 },
+        "treatmentsReceived": { "type": "string", "maxLength": 500 },
+        "productsUsed": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["parlourId", "ownerUid", "memberUids", "customerId", "customerName", "scanDate", "summary", "createdAt", "updatedAt"]
+    },
+    "CommunicationLog": {
+      "title": "CommunicationLog",
+      "description": "Customer WhatsApp message and feedback log",
+      "type": "object",
+      "properties": {
+        "parlourId": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "ownerUid": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "memberUids": { "type": "array" },
+        "customerId": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-]+$", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 120 },
+        "channel": { "type": "string", "enum": ["WhatsApp", "SMS", "Email"] },
+        "campaignType": { "type": "string", "enum": ["Follow-up", "Appointment Reminder", "Birthday", "Promotion", "Feedback"] },
+        "message": { "type": "string", "maxLength": 1500 },
+        "consentVerified": { "type": "boolean" },
+        "sentAt": { "type": "string", "maxLength": 32 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["parlourId", "ownerUid", "memberUids", "customerId", "customerName", "channel", "campaignType", "message", "consentVerified", "sentAt", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/parlours/{parlourId}": {
+      "schema": { "$ref": "#/entities/Parlour" },
+      "description": "Beauty parlour tenant root document"
+    },
+    "/parlours/{parlourId}/members/{memberUid}": {
+      "schema": { "$ref": "#/entities/ParlourMember" },
+      "description": "Parlour RBAC membership records"
+    },
+    "/parlours/{parlourId}/customers/{customerId}": {
+      "schema": { "$ref": "#/entities/Customer" },
+      "description": "Tenant-isolated customer CRM profiles"
+    },
+    "/parlours/{parlourId}/services/{serviceId}": {
+      "schema": { "$ref": "#/entities/ServiceItem" },
+      "description": "Tenant-isolated service and package catalog"
+    },
+    "/parlours/{parlourId}/appointments/{appointmentId}": {
+      "schema": { "$ref": "#/entities/Appointment" },
+      "description": "Tenant-isolated appointments"
+    },
+    "/parlours/{parlourId}/staff/{staffId}": {
+      "schema": { "$ref": "#/entities/StaffProfile" },
+      "description": "Tenant-isolated staff profiles and attendance"
+    },
+    "/parlours/{parlourId}/invoices/{invoiceId}": {
+      "schema": { "$ref": "#/entities/Invoice" },
+      "description": "Tenant-isolated billing invoices"
+    },
+    "/parlours/{parlourId}/skinScans/{scanId}": {
+      "schema": { "$ref": "#/entities/SkinScanRecord" },
+      "description": "Tenant-isolated cosmetic skin scan records"
+    },
+    "/parlours/{parlourId}/communications/{commId}": {
+      "schema": { "$ref": "#/entities/CommunicationLog" },
+      "description": "Tenant-isolated customer communications"
+    }
+  }
+}
