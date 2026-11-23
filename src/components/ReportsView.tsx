@@ -1,4 +1,5 @@
 import React from 'react';
+import { BarChart3, Repeat, TrendingUp, UserPlus, Users } from 'lucide-react';
 import type {
   Appointment,
   Customer,
@@ -46,57 +47,83 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-3xl font-semibold text-[#1E1916]">
-          Business Reports &amp; Retention Analytics
-        </h1>
-        <p className="text-sm text-[#6E645D] mt-1">
-          Track monthly performance, customer acquisition, repeat visit frequency, service revenue,
-          and specialist output for {parlour.name}.
-        </p>
+      <div className="flex items-center gap-3.5">
+        <div className="w-11 h-11 rounded-xl bg-[#EF4444] text-white flex items-center justify-center shadow-sm shrink-0">
+          <BarChart3 className="w-5 h-5" />
+        </div>
+        <div>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#111827]">
+            Business Reports &amp; Retention Analytics
+          </h1>
+          <p className="text-sm text-[#6B7280] mt-0.5">
+            Track monthly performance, customer acquisition, repeat visit frequency, service revenue,
+            and specialist output for {parlour.name}.
+          </p>
+        </div>
       </div>
 
       {/* Key Analytical Indicators */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <div className="bg-white border border-[#E8E0D8] rounded-2xl p-5">
-          <span className="text-xs text-[#6E645D]">Customer Retention Rate</span>
-          <p className="font-display text-3xl font-semibold text-[#1E1916] tabular-nums mt-2">
+        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-5 shadow-[0_4px_18px_rgba(15,23,42,0.03)]">
+          <div className="w-10 h-10 rounded-xl bg-[#5B4CE6] text-white flex items-center justify-center shadow-xs mb-3">
+            <Users className="w-5 h-5" />
+          </div>
+          <p className="font-display text-3xl font-bold text-[#111827] tabular-nums">
             {metrics.retentionRate}%
           </p>
-          <p className="text-xs text-[#6E645D] mt-1">
+          <span className="text-xs font-medium text-[#6B7280] block mt-1">
+            Customer Retention Rate
+          </span>
+          <p className="text-xs text-[#6B7280] mt-1">
             {metrics.returningCustomers} of {metrics.totalCustomers} clients returned
           </p>
         </div>
-        <div className="bg-white border border-[#E8E0D8] rounded-2xl p-5">
-          <span className="text-xs text-[#6E645D]">Repeat Revenue Share</span>
-          <p className="font-display text-3xl font-semibold text-[#1E1916] tabular-nums mt-2">
+
+        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-5 shadow-[0_4px_18px_rgba(15,23,42,0.03)]">
+          <div className="w-10 h-10 rounded-xl bg-[#10B981] text-white flex items-center justify-center shadow-xs mb-3">
+            <TrendingUp className="w-5 h-5" />
+          </div>
+          <p className="font-display text-3xl font-bold text-[#111827] tabular-nums">
             {repeatRevenuePct}%
           </p>
-          <p className="text-xs text-[#6E645D] mt-1">Revenue from returning clientele</p>
+          <span className="text-xs font-medium text-[#6B7280] block mt-1">
+            Repeat Revenue Share
+          </span>
+          <p className="text-xs text-[#6B7280] mt-1">Revenue from returning clientele</p>
         </div>
-        <div className="bg-white border border-[#E8E0D8] rounded-2xl p-5">
-          <span className="text-xs text-[#6E645D]">Avg. Visit Frequency</span>
-          <p className="font-display text-3xl font-semibold text-[#1E1916] tabular-nums mt-2">
-            {avgVisits}
-          </p>
-          <p className="text-xs text-[#6E645D] mt-1">Visits per registered client</p>
+
+        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-5 shadow-[0_4px_18px_rgba(15,23,42,0.03)]">
+          <div className="w-10 h-10 rounded-xl bg-[#F59E0B] text-white flex items-center justify-center shadow-xs mb-3">
+            <Repeat className="w-5 h-5" />
+          </div>
+          <p className="font-display text-3xl font-bold text-[#111827] tabular-nums">{avgVisits}</p>
+          <span className="text-xs font-medium text-[#6B7280] block mt-1">
+            Avg. Visit Frequency
+          </span>
+          <p className="text-xs text-[#6B7280] mt-1">Visits per registered client</p>
         </div>
-        <div className="bg-white border border-[#E8E0D8] rounded-2xl p-5">
-          <span className="text-xs text-[#6E645D]">New Client Acquisition</span>
-          <p className="font-display text-3xl font-semibold text-[#1E1916] tabular-nums mt-2">
+
+        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-5 shadow-[0_4px_18px_rgba(15,23,42,0.03)]">
+          <div className="w-10 h-10 rounded-xl bg-[#D91A6B] text-white flex items-center justify-center shadow-xs mb-3">
+            <UserPlus className="w-5 h-5" />
+          </div>
+          <p className="font-display text-3xl font-bold text-[#111827] tabular-nums">
             {metrics.newCustomersThisMonth}
           </p>
-          <p className="text-xs text-[#6E645D] mt-1">Registered in November 2026</p>
+          <span className="text-xs font-medium text-[#6B7280] block mt-1">
+            New Client Acquisition
+          </span>
+          <p className="text-xs text-[#6B7280] mt-1">Registered in November 2026</p>
         </div>
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-7 bg-white border border-[#E8E0D8] rounded-2xl p-6">
-          <h2 className="font-display text-2xl font-semibold text-[#1E1916] mb-1">
+        <div className="lg:col-span-7 bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-[0_4px_18px_rgba(15,23,42,0.03)]">
+          <h2 className="font-display text-xl font-bold text-[#111827] mb-1">
             Monthly Business Performance
           </h2>
-          <p className="text-xs text-[#6E645D] mb-4">
+          <p className="text-xs text-[#6B7280] mb-4">
             6-month revenue trajectory paired with total bookings
           </p>
           <RevenueAppointmentsChart
@@ -105,11 +132,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           />
         </div>
 
-        <div className="lg:col-span-5 bg-white border border-[#E8E0D8] rounded-2xl p-6">
-          <h2 className="font-display text-2xl font-semibold text-[#1E1916] mb-1">
+        <div className="lg:col-span-5 bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-[0_4px_18px_rgba(15,23,42,0.03)]">
+          <h2 className="font-display text-xl font-bold text-[#111827] mb-1">
             Revenue by Service
           </h2>
-          <p className="text-xs text-[#6E645D] mb-4">
+          <p className="text-xs text-[#6B7280] mb-4">
             Most popular treatments ranked by total booking value
           </p>
           <HorizontalBarBreakdown
@@ -125,70 +152,76 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
       {/* Staff Performance & Repeat Client Analysis */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-6 bg-white border border-[#E8E0D8] rounded-2xl p-6">
-          <h2 className="font-display text-2xl font-semibold text-[#1E1916] mb-4">
+        <div className="lg:col-span-6 bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-[0_4px_18px_rgba(15,23,42,0.03)]">
+          <h2 className="font-display text-xl font-bold text-[#111827] mb-4">
             Staff Performance Report
           </h2>
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-[#EAE3DC] text-[#6E645D]">
-                <th className="py-2">Specialist</th>
-                <th className="py-2 text-right">Completed</th>
-                <th className="py-2 text-right">Rating</th>
-                <th className="py-2 text-right">Revenue</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#EAE3DC]">
-              {leaderboard.map((st) => (
-                <tr key={st.id}>
-                  <td className="py-2.5 font-medium text-[#1E1916]">
-                    {st.name}
-                    <span className="block text-[11px] font-normal text-[#6E645D]">{st.role}</span>
-                  </td>
-                  <td className="py-2.5 text-right font-mono tabular-nums">
-                    {st.completedCount}
-                  </td>
-                  <td className="py-2.5 text-right font-mono tabular-nums">
-                    {st.rating.toFixed(1)}
-                  </td>
-                  <td className="py-2.5 text-right font-mono tabular-nums font-medium">
-                    {formatCurrency(st.revenueGenerated, parlour.currency)}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-[#F1F5F9] text-[#6B7280]">
+                  <th className="py-2 font-semibold">Specialist</th>
+                  <th className="py-2 text-right font-semibold">Completed</th>
+                  <th className="py-2 text-right font-semibold">Rating</th>
+                  <th className="py-2 text-right font-semibold">Revenue</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="lg:col-span-6 bg-white border border-[#E8E0D8] rounded-2xl p-6">
-          <h2 className="font-display text-2xl font-semibold text-[#1E1916] mb-4">
-            Repeat Customer &amp; Visit Frequency Analysis
-          </h2>
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-[#EAE3DC] text-[#6E645D]">
-                <th className="py-2">Client</th>
-                <th className="py-2">Segment</th>
-                <th className="py-2 text-right">Visits</th>
-                <th className="py-2 text-right">Total Spend</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#EAE3DC]">
-              {customers
-                .slice()
-                .sort((a, b) => b.visitCount - a.visitCount)
-                .map((c) => (
-                  <tr key={c.id}>
-                    <td className="py-2.5 font-medium text-[#1E1916]">{c.fullName}</td>
-                    <td className="py-2.5 text-[#6E645D]">{c.segment}</td>
-                    <td className="py-2.5 text-right font-mono tabular-nums">{c.visitCount}</td>
-                    <td className="py-2.5 text-right font-mono tabular-nums font-medium">
-                      {formatCurrency(c.totalSpent, parlour.currency)}
+              </thead>
+              <tbody className="divide-y divide-[#F1F5F9]">
+                {leaderboard.map((st) => (
+                  <tr key={st.id} className="hover:bg-[#F8FAFC]">
+                    <td className="py-2.5 font-medium text-[#111827]">
+                      {st.name}
+                      <span className="block text-[11px] font-normal text-[#6B7280]">{st.role}</span>
+                    </td>
+                    <td className="py-2.5 text-right font-mono tabular-nums text-[#111827]">
+                      {st.completedCount}
+                    </td>
+                    <td className="py-2.5 text-right font-mono tabular-nums text-amber-600 font-semibold">
+                      {st.rating.toFixed(1)}
+                    </td>
+                    <td className="py-2.5 text-right font-mono tabular-nums font-semibold text-[#111827]">
+                      {formatCurrency(st.revenueGenerated, parlour.currency)}
                     </td>
                   </tr>
                 ))}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="lg:col-span-6 bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-[0_4px_18px_rgba(15,23,42,0.03)]">
+          <h2 className="font-display text-xl font-bold text-[#111827] mb-4">
+            Repeat Customer &amp; Visit Frequency Analysis
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-[#F1F5F9] text-[#6B7280]">
+                  <th className="py-2 font-semibold">Client</th>
+                  <th className="py-2 font-semibold">Segment</th>
+                  <th className="py-2 text-right font-semibold">Visits</th>
+                  <th className="py-2 text-right font-semibold">Total Spend</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#F1F5F9]">
+                {customers
+                  .slice()
+                  .sort((a, b) => b.visitCount - a.visitCount)
+                  .map((c) => (
+                    <tr key={c.id} className="hover:bg-[#F8FAFC]">
+                      <td className="py-2.5 font-medium text-[#111827]">{c.fullName}</td>
+                      <td className="py-2.5 text-[#6B7280]">{c.segment}</td>
+                      <td className="py-2.5 text-right font-mono tabular-nums text-[#111827]">
+                        {c.visitCount}
+                      </td>
+                      <td className="py-2.5 text-right font-mono tabular-nums font-semibold text-[#111827]">
+                        {formatCurrency(c.totalSpent, parlour.currency)}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Sparkles, Copy, Check, ShieldAlert, ExternalLink } from 'lucide-react';
+import { Sparkles, Copy, Check, ShieldAlert, ExternalLink, MessageSquare } from 'lucide-react';
 import type { CommunicationLog, Customer, ParlourTenant } from '../types/beauty';
 import { validateWhatsappDispatch } from '../utils/analytics';
 
@@ -122,27 +122,32 @@ export const CommunicationView: React.FC<CommunicationViewProps> = ({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-3xl font-semibold text-[#1E1916]">
-          Customer Communication &amp; WhatsApp Care
-        </h1>
-        <p className="text-sm text-[#6E645D] mt-1">
-          Compose personalised follow-ups, appointment reminders, birthday notes, campaigns, and
-          feedback requests with strict opt-in verification.
-        </p>
+      <div className="flex items-center gap-3.5">
+        <div className="w-11 h-11 rounded-xl bg-[#F97316] text-white flex items-center justify-center shadow-sm shrink-0">
+          <MessageSquare className="w-5 h-5" />
+        </div>
+        <div>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#111827]">
+            Customer Communication &amp; WhatsApp Care
+          </h1>
+          <p className="text-sm text-[#6B7280] mt-0.5">
+            Compose personalised follow-ups, appointment reminders, birthday notes, campaigns, and
+            feedback requests with strict opt-in verification.
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Composer */}
         <form
           onSubmit={handleLogMessage}
-          className="lg:col-span-6 bg-white border border-[#E8E0D8] rounded-2xl p-6 space-y-4"
+          className="lg:col-span-6 bg-white border border-[#E5E7EB] rounded-2xl p-6 space-y-4 shadow-[0_4px_18px_rgba(15,23,42,0.03)]"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label
                 htmlFor="comm-client"
-                className="block text-xs font-medium text-[#1E1916] mb-1"
+                className="block text-xs font-semibold text-[#111827] mb-1"
               >
                 Recipient Client
               </label>
@@ -150,7 +155,7 @@ export const CommunicationView: React.FC<CommunicationViewProps> = ({
                 id="comm-client"
                 value={customerId}
                 onChange={(e) => setCustomerId(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
               >
                 {customers.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -162,7 +167,7 @@ export const CommunicationView: React.FC<CommunicationViewProps> = ({
             <div>
               <label
                 htmlFor="comm-type"
-                className="block text-xs font-medium text-[#1E1916] mb-1"
+                className="block text-xs font-semibold text-[#111827] mb-1"
               >
                 Message Category
               </label>
@@ -170,7 +175,7 @@ export const CommunicationView: React.FC<CommunicationViewProps> = ({
                 id="comm-type"
                 value={campaignType}
                 onChange={(e) => setCampaignType(e.target.value as CampaignType)}
-                className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
               >
                 <option value="Follow-up">Follow-up Reminder</option>
                 <option value="Appointment Reminder">Appointment Reminder</option>
@@ -195,7 +200,7 @@ export const CommunicationView: React.FC<CommunicationViewProps> = ({
           <div>
             <label
               htmlFor="comm-context"
-              className="block text-xs font-medium text-[#1E1916] mb-1"
+              className="block text-xs font-semibold text-[#111827] mb-1"
             >
               Personalisation Context (Optional)
             </label>
@@ -205,7 +210,7 @@ export const CommunicationView: React.FC<CommunicationViewProps> = ({
               value={contextNote}
               onChange={(e) => setContextNote(e.target.value)}
               placeholder="e.g. Mention ceramide barrier cream or upcoming bridal trial..."
-              className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+              className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
             />
           </div>
 
@@ -214,22 +219,22 @@ export const CommunicationView: React.FC<CommunicationViewProps> = ({
               type="button"
               onClick={generateAiDraft}
               disabled={drafting || !activeCustomer}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F4EFEA] text-xs font-medium text-[#1E1916] hover:bg-[#EAE1D8] disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FDF0F6] text-xs font-semibold text-[#D91A6B] hover:bg-[#FCE7F3] disabled:opacity-50"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#B08B4F]" />
+              <Sparkles className="w-3.5 h-3.5" />
               {drafting ? 'Drafting...' : 'AI Draft Message'}
             </button>
             <button
               type="button"
               onClick={applyTemplate}
-              className="px-3 py-1.5 rounded-lg border border-[#E8E0D8] text-xs font-medium text-[#1E1916] hover:bg-[#FAF8F6]"
+              className="px-3.5 py-1.5 rounded-xl border border-[#E5E7EB] text-xs font-semibold text-[#111827] hover:bg-[#F8FAFC]"
             >
               Use Standard Template
             </button>
           </div>
 
           {draftError && (
-            <p className="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-lg p-2.5">
+            <p className="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-xl p-2.5">
               {draftError}
             </p>
           )}
@@ -237,7 +242,7 @@ export const CommunicationView: React.FC<CommunicationViewProps> = ({
           <div>
             <label
               htmlFor="comm-message"
-              className="block text-xs font-medium text-[#1E1916] mb-1"
+              className="block text-xs font-semibold text-[#111827] mb-1"
             >
               WhatsApp Message Preview
             </label>
@@ -247,7 +252,7 @@ export const CommunicationView: React.FC<CommunicationViewProps> = ({
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
               placeholder="Write or generate a personalised message..."
-              className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+              className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
             />
           </div>
 
@@ -256,7 +261,7 @@ export const CommunicationView: React.FC<CommunicationViewProps> = ({
               <div>
                 <label
                   htmlFor="fb-rating"
-                  className="block text-xs font-medium text-[#1E1916] mb-1"
+                  className="block text-xs font-semibold text-[#111827] mb-1"
                 >
                   Client Rating (1-5)
                 </label>
@@ -267,13 +272,13 @@ export const CommunicationView: React.FC<CommunicationViewProps> = ({
                   max={5}
                   value={feedbackRating}
                   onChange={(e) => setFeedbackRating(Number(e.target.value))}
-                  className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                  className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
                 />
               </div>
               <div className="sm:col-span-2">
                 <label
                   htmlFor="fb-comment"
-                  className="block text-xs font-medium text-[#1E1916] mb-1"
+                  className="block text-xs font-semibold text-[#111827] mb-1"
                 >
                   Recorded Feedback Note
                 </label>
@@ -283,7 +288,7 @@ export const CommunicationView: React.FC<CommunicationViewProps> = ({
                   value={feedbackComment}
                   onChange={(e) => setFeedbackComment(e.target.value)}
                   placeholder="Optional client feedback..."
-                  className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                  className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
                 />
               </div>
             </div>
@@ -295,9 +300,13 @@ export const CommunicationView: React.FC<CommunicationViewProps> = ({
                 type="button"
                 onClick={copyToClipboard}
                 disabled={!messageText.trim()}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#E8E0D8] text-xs font-medium text-[#1E1916] disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#E5E7EB] text-xs font-semibold text-[#111827] disabled:opacity-50"
               >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-700" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? (
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
                 {copied ? 'Copied' : 'Copy Text'}
               </button>
               {dispatchCheck.allowed && whatsappUrl && (
@@ -305,7 +314,7 @@ export const CommunicationView: React.FC<CommunicationViewProps> = ({
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#E8E0D8] text-xs font-medium text-[#1E1916] hover:bg-[#FAF8F6]"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#E5E7EB] text-xs font-semibold text-[#111827] hover:bg-[#F8FAFC]"
                 >
                   Open WhatsApp
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -315,7 +324,7 @@ export const CommunicationView: React.FC<CommunicationViewProps> = ({
             <button
               type="submit"
               disabled={!dispatchCheck.allowed}
-              className="px-4 py-2 rounded-lg bg-[#B85C6F] text-white text-xs font-medium hover:bg-[#A34D5F] disabled:opacity-50 whitespace-nowrap"
+              className="px-4 py-2 rounded-xl bg-[#D91A6B] text-white text-xs font-semibold hover:bg-[#BD145B] disabled:opacity-50 whitespace-nowrap"
             >
               Verify Consent &amp; Log Message
             </button>
@@ -323,22 +332,22 @@ export const CommunicationView: React.FC<CommunicationViewProps> = ({
         </form>
 
         {/* Communication & Feedback History */}
-        <div className="lg:col-span-6 bg-white border border-[#E8E0D8] rounded-2xl p-6 space-y-4">
-          <h2 className="font-display text-2xl font-semibold text-[#1E1916]">
+        <div className="lg:col-span-6 bg-white border border-[#E5E7EB] rounded-2xl p-6 space-y-4 shadow-[0_4px_18px_rgba(15,23,42,0.03)]">
+          <h2 className="font-display text-xl font-bold text-[#111827]">
             Recent Communication &amp; Feedback Log
           </h2>
-          <div className="divide-y divide-[#EAE3DC]">
+          <div className="divide-y divide-[#F1F5F9]">
             {communications.map((log) => (
               <div key={log.id} className="py-3.5 space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-[#1E1916]">
+                  <span className="font-semibold text-[#111827]">
                     {log.customerName} · {log.campaignType}
                   </span>
-                  <span className="font-mono text-[#6E645D]">{log.sentAt}</span>
+                  <span className="font-mono text-[#6B7280]">{log.sentAt}</span>
                 </div>
-                <p className="text-xs text-[#6E645D] leading-relaxed">{log.message}</p>
+                <p className="text-xs text-[#6B7280] leading-relaxed">{log.message}</p>
                 {log.feedbackComment && (
-                  <p className="text-xs text-[#B08B4F] font-medium">
+                  <p className="text-xs text-[#D91A6B] font-semibold">
                     Client Feedback ({log.feedbackRating}/5 ★): &ldquo;{log.feedbackComment}&rdquo;
                   </p>
                 )}

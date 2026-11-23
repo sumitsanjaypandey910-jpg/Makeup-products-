@@ -101,6 +101,7 @@ export default function App() {
 
   const [preselectedScanCustomerId, setPreselectedScanCustomerId] = useState<string>('');
   const [preselectedMsgCustomerId, setPreselectedMsgCustomerId] = useState<string>('');
+  const [customerCreateTrigger, setCustomerCreateTrigger] = useState<number>(0);
   const [authNotice, setAuthNotice] = useState<string>('');
 
   useEffect(() => {
@@ -443,25 +444,57 @@ export default function App() {
 
   const groups = ['Studio', 'Skin Intelligence', 'Operations', 'Management'];
 
+  const roleLabel =
+    activeRole === 'super_admin'
+      ? 'Super Admin'
+      : activeRole === 'owner'
+      ? 'Parlour Owner'
+      : 'Staff Specialist';
+
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[#FAF8F6] text-[#1E1916] flex flex-col lg:flex-row">
-        {/* Desktop Sidebar Navigation */}
-        <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:shrink-0 bg-white border-r border-[#E8E0D8] min-h-screen sticky top-0 h-screen">
-          <div className="px-6 py-5 border-b border-[#EAE3DC]">
+      <div className="min-h-screen bg-[#F3F4F8] text-[#111827] flex flex-col lg:flex-row">
+        {/* Desktop Vibrant Raspberry-Magenta Sidebar Navigation */}
+        <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:shrink-0 bg-gradient-to-b from-[#8E1B4D] via-[#B81D5E] to-[#DF2672] text-white min-h-screen sticky top-0 h-screen shadow-[4px_0_24px_rgba(142,27,77,0.14)]">
+          <div className="px-5 py-5 border-b border-white/15">
             <button
               type="button"
               onClick={() => navigateTo('dashboard')}
-              className="font-display text-2xl font-semibold tracking-tight text-[#1E1916] whitespace-nowrap"
+              className="flex items-center gap-3 text-left w-full group"
             >
-              BeautyOS
+              <div className="w-10 h-10 rounded-xl bg-white text-[#D91A6B] flex items-center justify-center shadow-sm shrink-0 group-hover:scale-105 transition-transform">
+                <svg viewBox="0 0 36 36" fill="none" className="w-6 h-6" aria-hidden="true">
+                  <path
+                    d="M18 6C15.5 11.2 14 15.8 14 20.2C14 23.8 15.8 26.5 18 28C20.2 26.5 22 23.8 22 20.2C22 15.8 20.5 11.2 18 6Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M11.6 13.5C9.2 15.2 7.2 18.4 7.5 22.1C7.8 25.4 10.6 27.6 14.5 28C12.8 24.4 12.1 19.6 11.6 13.5Z"
+                    fill="currentColor"
+                    fillOpacity="0.82"
+                  />
+                  <path
+                    d="M24.4 13.5C26.8 15.2 28.8 18.4 28.5 22.1C28.2 25.4 25.4 27.6 21.5 28C23.2 24.4 23.9 19.6 24.4 13.5Z"
+                    fill="currentColor"
+                    fillOpacity="0.82"
+                  />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <span className="font-display text-lg font-bold tracking-tight text-white block leading-tight">
+                  BeautyOS
+                </span>
+                <span className="text-[11px] text-white/80 block truncate">
+                  {roleLabel} Dashboard
+                </span>
+              </div>
             </button>
           </div>
 
-          <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5" aria-label="Studio modules">
+          <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-4" aria-label="Studio modules">
             {groups.map((grp) => (
               <div key={grp}>
-                <p className="px-3 text-[11px] font-semibold text-[#8A7F77] mb-1.5">{grp}</p>
+                <p className="px-3 text-[11px] font-semibold text-white/60 mb-1.5">{grp}</p>
                 <div className="space-y-0.5">
                   {NAV_ITEMS.filter((item) => item.group === grp).map((item) => {
                     const Icon = item.icon;
@@ -471,10 +504,10 @@ export default function App() {
                         key={item.id}
                         type="button"
                         onClick={() => navigateTo(item.id)}
-                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
+                        className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors whitespace-nowrap ${
                           active
-                            ? 'bg-[#F9EFF1] text-[#B85C6F]'
-                            : 'text-[#6E645D] hover:bg-[#FAF8F6] hover:text-[#1E1916]'
+                            ? 'bg-white/20 text-white font-semibold shadow-xs'
+                            : 'text-white/85 hover:bg-white/10 hover:text-white'
                         }`}
                       >
                         <Icon className="w-4 h-4 shrink-0" />
@@ -488,20 +521,13 @@ export default function App() {
           </nav>
 
           {/* Tenant & Role Footer Summary */}
-          <div className="p-4 border-t border-[#EAE3DC] bg-[#FAF8F6] space-y-1.5 text-xs">
-            <p className="font-medium text-[#1E1916] truncate">{activeParlour.name}</p>
-            <p className="text-[11px] text-[#6E645D] truncate">
-              Role:{' '}
-              {activeRole === 'super_admin'
-                ? 'Super Admin'
-                : activeRole === 'owner'
-                ? 'Parlour Owner'
-                : 'Staff Specialist'}
-            </p>
+          <div className="p-4 border-t border-white/15 bg-black/10 space-y-1.5 text-xs">
+            <p className="font-semibold text-white truncate">{activeParlour.name}</p>
+            <p className="text-[11px] text-white/75 truncate">Role: {roleLabel}</p>
             <button
               type="button"
               onClick={() => navigateTo('tenants')}
-              className="text-[11px] font-medium text-[#B85C6F] hover:underline"
+              className="w-full text-left text-[11px] font-semibold text-white/95 hover:text-white underline underline-offset-2 pt-0.5"
             >
               {firebaseUser ? 'Cloud Sync Active' : 'Manage Tenants & Cloud'}
             </button>
@@ -511,33 +537,35 @@ export default function App() {
         {/* Main Shell */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* 3-Zone Top Header Bar */}
-          <header className="bg-white border-b border-[#E8E0D8] px-4 sm:px-8 h-16 flex items-center justify-between gap-8 sticky top-0 z-30">
+          <header className="bg-white border-b border-[#E5E7EB] px-4 sm:px-8 h-16 flex items-center justify-between gap-8 sticky top-0 z-30">
             <div className="flex items-center gap-3 min-w-0">
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(true)}
                 aria-label="Open navigation menu"
-                className="lg:hidden p-2 rounded-lg border border-[#E8E0D8] text-[#1E1916] min-w-[40px] min-h-[40px] flex items-center justify-center"
+                className="lg:hidden p-2 rounded-xl border border-[#E5E7EB] text-[#111827] min-w-[40px] min-h-[40px] flex items-center justify-center"
               >
                 <Menu className="w-4 h-4" />
               </button>
-              <span className="font-display text-xl font-semibold text-[#1E1916] whitespace-nowrap shrink-0 lg:hidden">
+              <span className="font-display text-xl font-bold text-[#D91A6B] whitespace-nowrap shrink-0 lg:hidden">
                 BeautyOS
               </span>
-              <span className="hidden lg:inline text-sm font-medium text-[#1E1916] whitespace-nowrap truncate">
+              <span className="hidden lg:inline text-sm font-semibold text-[#111827] whitespace-nowrap truncate">
                 {activeParlour.name}
               </span>
             </div>
 
             <nav
-              className="hidden md:flex items-center gap-6 text-sm font-medium text-[#6E645D]"
+              className="hidden md:flex items-center gap-6 text-sm font-medium text-[#6B7280]"
               aria-label="Primary shortcuts"
             >
               <button
                 type="button"
                 onClick={() => navigateTo('dashboard')}
-                className={`hover:text-[#1E1916] whitespace-nowrap shrink-0 ${
-                  activeTab === 'dashboard' ? 'text-[#1E1916] underline underline-offset-4' : ''
+                className={`hover:text-[#111827] whitespace-nowrap shrink-0 ${
+                  activeTab === 'dashboard'
+                    ? 'text-[#D91A6B] font-semibold underline underline-offset-4'
+                    : ''
                 }`}
               >
                 Overview
@@ -545,8 +573,10 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => navigateTo('customers')}
-                className={`hover:text-[#1E1916] whitespace-nowrap shrink-0 ${
-                  activeTab === 'customers' ? 'text-[#1E1916] underline underline-offset-4' : ''
+                className={`hover:text-[#111827] whitespace-nowrap shrink-0 ${
+                  activeTab === 'customers'
+                    ? 'text-[#D91A6B] font-semibold underline underline-offset-4'
+                    : ''
                 }`}
               >
                 Clients
@@ -554,8 +584,10 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => navigateTo('skin_scanner')}
-                className={`hover:text-[#1E1916] whitespace-nowrap shrink-0 ${
-                  activeTab === 'skin_scanner' ? 'text-[#1E1916] underline underline-offset-4' : ''
+                className={`hover:text-[#111827] whitespace-nowrap shrink-0 ${
+                  activeTab === 'skin_scanner'
+                    ? 'text-[#D91A6B] font-semibold underline underline-offset-4'
+                    : ''
                 }`}
               >
                 AI Skin Scan
@@ -563,8 +595,10 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => navigateTo('billing')}
-                className={`hover:text-[#1E1916] whitespace-nowrap shrink-0 ${
-                  activeTab === 'billing' ? 'text-[#1E1916] underline underline-offset-4' : ''
+                className={`hover:text-[#111827] whitespace-nowrap shrink-0 ${
+                  activeTab === 'billing'
+                    ? 'text-[#D91A6B] font-semibold underline underline-offset-4'
+                    : ''
                 }`}
               >
                 Billing
@@ -575,7 +609,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => navigateTo('appointments')}
-                className="px-4 py-2 rounded-lg bg-[#B85C6F] text-white text-xs font-medium hover:bg-[#A34D5F] transition-colors whitespace-nowrap shrink-0"
+                className="px-4 py-2 rounded-xl bg-[#D91A6B] text-white text-xs font-semibold hover:bg-[#BD145B] transition-colors whitespace-nowrap shrink-0 shadow-xs"
               >
                 Book Visit
               </button>
@@ -596,7 +630,7 @@ export default function App() {
           )}
 
           {/* Main Content Viewport */}
-          <main className="flex-1 p-4 sm:p-8 max-w-[1320px] w-full mx-auto">
+          <main className="flex-1 p-4 sm:p-7 max-w-[1360px] w-full mx-auto">
             {activeTab === 'dashboard' && (
               <DashboardView
                 parlour={activeParlour}
@@ -607,7 +641,10 @@ export default function App() {
                 skinScans={tenantScans}
                 onNavigate={navigateTo}
                 onOpenNewAppointment={() => navigateTo('appointments')}
-                onOpenNewCustomer={() => navigateTo('customers')}
+                onOpenNewCustomer={() => {
+                  setCustomerCreateTrigger((n) => n + 1);
+                  navigateTo('customers');
+                }}
               />
             )}
 
@@ -623,6 +660,7 @@ export default function App() {
                 onSelectCustomerForScan={(id) => setPreselectedScanCustomerId(id)}
                 onSelectCustomerForMessage={(id) => setPreselectedMsgCustomerId(id)}
                 onNavigate={navigateTo}
+                externalCreateTrigger={customerCreateTrigger}
               />
             )}
 
@@ -734,16 +772,14 @@ export default function App() {
               className="fixed inset-0 bg-black/40"
               onClick={() => setMobileMenuOpen(false)}
             />
-            <div className="relative w-72 max-w-[85vw] bg-white h-full border-r border-[#E8E0D8] flex flex-col z-10">
-              <div className="px-5 py-4 border-b border-[#EAE3DC] flex items-center justify-between">
-                <span className="font-display text-2xl font-semibold text-[#1E1916]">
-                  BeautyOS
-                </span>
+            <div className="relative w-72 max-w-[85vw] bg-gradient-to-b from-[#8E1B4D] via-[#B81D5E] to-[#DF2672] text-white h-full flex flex-col z-10 shadow-2xl">
+              <div className="px-5 py-4 border-b border-white/15 flex items-center justify-between">
+                <span className="font-display text-2xl font-bold text-white">BeautyOS</span>
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
                   aria-label="Close navigation menu"
-                  className="p-2 rounded-lg text-[#6E645D]"
+                  className="p-2 rounded-xl text-white/80 hover:bg-white/10"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -757,8 +793,8 @@ export default function App() {
                       key={item.id}
                       type="button"
                       onClick={() => navigateTo(item.id)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${
-                        active ? 'bg-[#F9EFF1] text-[#B85C6F]' : 'text-[#1E1916]'
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${
+                        active ? 'bg-white/20 text-white font-semibold' : 'text-white/90'
                       }`}
                     >
                       <Icon className="w-4 h-4 shrink-0" />

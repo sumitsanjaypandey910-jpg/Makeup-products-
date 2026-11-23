@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Check, X } from 'lucide-react';
+import { Plus, Check, X, Receipt } from 'lucide-react';
 import type {
   Customer,
   Invoice,
@@ -117,19 +117,24 @@ export const BillingView: React.FC<BillingViewProps> = ({
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl font-semibold text-[#1E1916]">
-            Billing, Invoices &amp; Payments
-          </h1>
-          <p className="text-sm text-[#6E645D] mt-1">
-            Generate itemised service and retail invoices with GST/tax calculation and payment
-            reconciliation.
-          </p>
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-[#10B981] text-white flex items-center justify-center shadow-sm shrink-0">
+            <Receipt className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#111827]">
+              Billing, Invoices &amp; Payments
+            </h1>
+            <p className="text-sm text-[#6B7280] mt-0.5">
+              Generate itemised service and retail invoices with GST/tax calculation and payment
+              reconciliation.
+            </p>
+          </div>
         </div>
         <button
           type="button"
           onClick={() => setModalOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#B85C6F] text-white text-sm font-medium hover:bg-[#A34D5F] whitespace-nowrap shrink-0"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#D91A6B] text-white text-sm font-semibold hover:bg-[#BD145B] whitespace-nowrap shrink-0 shadow-xs"
         >
           <Plus className="w-4 h-4" />
           New Invoice
@@ -137,17 +142,17 @@ export const BillingView: React.FC<BillingViewProps> = ({
       </div>
 
       {/* Period Summary Strip */}
-      <div className="bg-white border border-[#E8E0D8] rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-1 p-1 bg-[#F4EFEA] rounded-lg w-fit">
+      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-5 shadow-[0_4px_18px_rgba(15,23,42,0.03)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-1 p-1 bg-[#F3F4F8] rounded-xl w-fit">
           {(['daily', 'weekly', 'monthly'] as const).map((p) => (
             <button
               key={p}
               type="button"
               onClick={() => setPeriodView(p)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md capitalize transition-colors ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg capitalize transition-colors ${
                 periodView === p
-                  ? 'bg-white text-[#1E1916]'
-                  : 'text-[#6E645D] hover:text-[#1E1916]'
+                  ? 'bg-white text-[#D91A6B] shadow-xs'
+                  : 'text-[#6B7280] hover:text-[#111827]'
               }`}
             >
               {p} Revenue
@@ -156,20 +161,20 @@ export const BillingView: React.FC<BillingViewProps> = ({
         </div>
         <div className="flex flex-wrap items-center gap-6 text-xs">
           <div>
-            <span className="text-[#6E645D] block">Collected ({periodView})</span>
-            <span className="font-mono text-lg font-semibold text-[#1E1916] tabular-nums">
+            <span className="text-[#6B7280] block">Collected ({periodView})</span>
+            <span className="font-mono text-lg font-bold text-emerald-600 tabular-nums">
               {formatCurrency(collectedTotal, parlour.currency)}
             </span>
           </div>
           <div>
-            <span className="text-[#6E645D] block">Pending Collection</span>
-            <span className="font-mono text-lg font-semibold text-amber-700 tabular-nums">
+            <span className="text-[#6B7280] block">Pending Collection</span>
+            <span className="font-mono text-lg font-bold text-[#F97316] tabular-nums">
               {formatCurrency(pendingTotal, parlour.currency)}
             </span>
           </div>
           <div>
-            <span className="text-[#6E645D] block">Studio Tax Rate</span>
-            <span className="font-mono text-lg font-semibold text-[#1E1916] tabular-nums">
+            <span className="text-[#6B7280] block">Studio Tax Rate</span>
+            <span className="font-mono text-lg font-bold text-[#111827] tabular-nums">
               {parlour.taxRate}%
             </span>
           </div>
@@ -177,11 +182,11 @@ export const BillingView: React.FC<BillingViewProps> = ({
       </div>
 
       {/* Transaction Ledger Table */}
-      <div className="bg-white border border-[#E8E0D8] rounded-2xl overflow-hidden">
+      <div className="bg-white border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-[0_4px_18px_rgba(15,23,42,0.03)]">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-[#EAE3DC] text-xs font-medium text-[#6E645D]">
+              <tr className="border-b border-[#F1F5F9] text-xs font-semibold text-[#6B7280] bg-[#F8FAFC]">
                 <th className="py-3.5 px-4">Invoice #</th>
                 <th className="py-3.5 px-4">Client</th>
                 <th className="py-3.5 px-4">Items</th>
@@ -191,33 +196,33 @@ export const BillingView: React.FC<BillingViewProps> = ({
                 <th className="py-3.5 px-4 text-right">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#EAE3DC] text-sm">
+            <tbody className="divide-y divide-[#F1F5F9] text-sm">
               {filteredInvoices.map((inv) => (
-                <tr key={inv.id} className="hover:bg-[#FAF8F6]">
-                  <td className="py-3.5 px-4 font-mono text-xs text-[#1E1916]">
+                <tr key={inv.id} className="hover:bg-[#F8FAFC]">
+                  <td className="py-3.5 px-4 font-mono text-xs text-[#111827] font-medium">
                     {inv.invoiceNumber}
                   </td>
-                  <td className="py-3.5 px-4 font-medium text-[#1E1916]">{inv.customerName}</td>
-                  <td className="py-3.5 px-4 text-xs text-[#6E645D] max-w-xs truncate">
+                  <td className="py-3.5 px-4 font-semibold text-[#111827]">{inv.customerName}</td>
+                  <td className="py-3.5 px-4 text-xs text-[#6B7280] max-w-xs truncate">
                     {inv.items.map((i) => `${i.label} (×${i.qty})`).join(', ')}
                   </td>
-                  <td className="py-3.5 px-3 font-mono text-xs text-[#6E645D] tabular-nums">
+                  <td className="py-3.5 px-3 font-mono text-xs text-[#6B7280] tabular-nums">
                     {inv.issuedAt}
                   </td>
-                  <td className="py-3.5 px-3 text-xs text-[#1E1916]">{inv.paymentMethod}</td>
-                  <td className="py-3.5 px-3 text-right font-mono font-medium text-[#1E1916] tabular-nums">
+                  <td className="py-3.5 px-3 text-xs text-[#111827]">{inv.paymentMethod}</td>
+                  <td className="py-3.5 px-3 text-right font-mono font-semibold text-[#111827] tabular-nums">
                     {formatCurrency(inv.total, parlour.currency)}
                   </td>
                   <td className="py-3.5 px-4 text-right">
                     {inv.paymentStatus === 'Paid' ? (
-                      <span className="text-xs font-medium text-emerald-700">Paid</span>
+                      <span className="text-xs font-semibold text-emerald-600">Paid</span>
                     ) : (
                       <button
                         type="button"
                         onClick={() => onMarkInvoicePaid(inv.id)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#F7F1E5] text-[#1E1916] text-xs font-medium hover:bg-[#EAE0CE] whitespace-nowrap"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FDF0F6] text-[#D91A6B] text-xs font-semibold hover:bg-[#FCE7F3] whitespace-nowrap"
                       >
-                        <Check className="w-3 h-3 text-[#B08B4F]" />
+                        <Check className="w-3 h-3" />
                         Mark Paid
                       </button>
                     )}
@@ -237,11 +242,11 @@ export const BillingView: React.FC<BillingViewProps> = ({
           aria-modal="true"
           aria-labelledby="invoice-modal-title"
         >
-          <div className="bg-white border border-[#E8E0D8] rounded-2xl max-w-md w-full p-6">
+          <div className="bg-white border border-[#E5E7EB] rounded-2xl max-w-md w-full p-6 shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <h2
                 id="invoice-modal-title"
-                className="font-display text-2xl font-semibold text-[#1E1916]"
+                className="font-display text-xl font-bold text-[#111827]"
               >
                 Create Customer Invoice
               </h2>
@@ -249,7 +254,7 @@ export const BillingView: React.FC<BillingViewProps> = ({
                 type="button"
                 onClick={() => setModalOpen(false)}
                 aria-label="Close invoice modal"
-                className="p-1.5 rounded-lg text-[#6E645D] hover:bg-[#F4EFEA]"
+                className="p-1.5 rounded-xl text-[#6B7280] hover:bg-[#F3F4F8]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -258,7 +263,7 @@ export const BillingView: React.FC<BillingViewProps> = ({
               <div>
                 <label
                   htmlFor="inv-client"
-                  className="block text-xs font-medium text-[#1E1916] mb-1"
+                  className="block text-xs font-semibold text-[#111827] mb-1"
                 >
                   Customer
                 </label>
@@ -266,7 +271,7 @@ export const BillingView: React.FC<BillingViewProps> = ({
                   id="inv-client"
                   value={customerId}
                   onChange={(e) => setCustomerId(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                  className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
                 >
                   {customers.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -279,7 +284,7 @@ export const BillingView: React.FC<BillingViewProps> = ({
               <div>
                 <label
                   htmlFor="inv-service"
-                  className="block text-xs font-medium text-[#1E1916] mb-1"
+                  className="block text-xs font-semibold text-[#111827] mb-1"
                 >
                   Service Charge
                 </label>
@@ -287,7 +292,7 @@ export const BillingView: React.FC<BillingViewProps> = ({
                   id="inv-service"
                   value={selectedServiceId}
                   onChange={(e) => setSelectedServiceId(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                  className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
                 >
                   {services.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -300,7 +305,7 @@ export const BillingView: React.FC<BillingViewProps> = ({
               <div>
                 <label
                   htmlFor="inv-product"
-                  className="block text-xs font-medium text-[#1E1916] mb-1"
+                  className="block text-xs font-semibold text-[#111827] mb-1"
                 >
                   Add Retail Product (Optional)
                 </label>
@@ -308,7 +313,7 @@ export const BillingView: React.FC<BillingViewProps> = ({
                   id="inv-product"
                   value={selectedProduct}
                   onChange={(e) => setSelectedProduct(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                  className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
                 >
                   <option value="">None</option>
                   {RETAIL_PRODUCTS.map((p) => (
@@ -323,7 +328,7 @@ export const BillingView: React.FC<BillingViewProps> = ({
                 <div>
                   <label
                     htmlFor="inv-discount"
-                    className="block text-xs font-medium text-[#1E1916] mb-1"
+                    className="block text-xs font-semibold text-[#111827] mb-1"
                   >
                     Discount ({parlour.currency})
                   </label>
@@ -333,13 +338,13 @@ export const BillingView: React.FC<BillingViewProps> = ({
                     min={0}
                     value={discount}
                     onChange={(e) => setDiscount(Number(e.target.value))}
-                    className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                    className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="inv-method"
-                    className="block text-xs font-medium text-[#1E1916] mb-1"
+                    className="block text-xs font-semibold text-[#111827] mb-1"
                   >
                     Method
                   </label>
@@ -347,7 +352,7 @@ export const BillingView: React.FC<BillingViewProps> = ({
                     id="inv-method"
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-                    className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                    className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
                   >
                     <option value="UPI">UPI</option>
                     <option value="Card">Card</option>
@@ -358,7 +363,7 @@ export const BillingView: React.FC<BillingViewProps> = ({
                 <div>
                   <label
                     htmlFor="inv-status"
-                    className="block text-xs font-medium text-[#1E1916] mb-1"
+                    className="block text-xs font-semibold text-[#111827] mb-1"
                   >
                     Status
                   </label>
@@ -366,7 +371,7 @@ export const BillingView: React.FC<BillingViewProps> = ({
                     id="inv-status"
                     value={paymentStatus}
                     onChange={(e) => setPaymentStatus(e.target.value as PaymentStatus)}
-                    className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                    className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
                   >
                     <option value="Paid">Paid</option>
                     <option value="Pending">Pending</option>
@@ -375,28 +380,28 @@ export const BillingView: React.FC<BillingViewProps> = ({
                 </div>
               </div>
 
-              <div className="bg-[#FAF8F6] border border-[#E8E0D8] rounded-xl p-3.5 text-xs space-y-1">
-                <div className="flex justify-between text-[#6E645D]">
+              <div className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl p-3.5 text-xs space-y-1">
+                <div className="flex justify-between text-[#6B7280]">
                   <span>Subtotal</span>
                   <span className="font-mono tabular-nums">
                     {formatCurrency(totals.subtotal, parlour.currency)}
                   </span>
                 </div>
-                <div className="flex justify-between text-[#6E645D]">
+                <div className="flex justify-between text-[#6B7280]">
                   <span>Discount</span>
                   <span className="font-mono tabular-nums">
                     -{formatCurrency(totals.discount, parlour.currency)}
                   </span>
                 </div>
-                <div className="flex justify-between text-[#6E645D]">
+                <div className="flex justify-between text-[#6B7280]">
                   <span>Tax ({parlour.taxRate}%)</span>
                   <span className="font-mono tabular-nums">
                     {formatCurrency(totals.taxAmount, parlour.currency)}
                   </span>
                 </div>
-                <div className="flex justify-between font-semibold text-[#1E1916] pt-1.5 border-t border-[#EAE3DC]">
+                <div className="flex justify-between font-bold text-[#111827] pt-1.5 border-t border-[#E5E7EB]">
                   <span>Total Payable</span>
-                  <span className="font-mono tabular-nums">
+                  <span className="font-mono tabular-nums text-[#D91A6B]">
                     {formatCurrency(totals.total, parlour.currency)}
                   </span>
                 </div>
@@ -406,13 +411,13 @@ export const BillingView: React.FC<BillingViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-lg border border-[#E8E0D8] text-sm"
+                  className="px-4 py-2 rounded-xl border border-[#E5E7EB] text-sm"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-[#B85C6F] text-white text-sm font-medium hover:bg-[#A34D5F]"
+                  className="px-4 py-2 rounded-xl bg-[#D91A6B] text-white text-sm font-semibold hover:bg-[#BD145B]"
                 >
                   Issue Invoice
                 </button>

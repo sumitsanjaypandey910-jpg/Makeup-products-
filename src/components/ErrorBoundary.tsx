@@ -28,21 +28,21 @@ export class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#FAF8F6] flex items-center justify-center p-6">
-          <div className="max-w-lg w-full bg-white border border-[#E8E0D8] rounded-2xl p-8">
-            <h2 className="font-display text-2xl font-semibold text-[#1E1916] mb-2">
+        <div className="min-h-screen bg-[#F3F4F8] flex items-center justify-center p-6">
+          <div className="max-w-lg w-full bg-white border border-[#E5E7EB] rounded-2xl p-8 shadow-sm">
+            <h2 className="font-display text-2xl font-bold text-[#111827] mb-2">
               Workspace Notice
             </h2>
-            <p className="text-sm text-[#6E645D] mb-4">
+            <p className="text-sm text-[#6B7280] mb-4">
               BeautyOS encountered an unexpected error while processing this view.
             </p>
-            <div className="bg-[#F4EFEA] border border-[#E8E0D8] rounded-xl p-3 text-xs font-mono text-[#1E1916] break-words mb-6">
+            <div className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl p-3 text-xs font-mono text-[#111827] break-words mb-6">
               {this.state.errorMessage}
             </div>
             <button
               type="button"
               onClick={() => this.setState({ hasError: false, errorMessage: '' })}
-              className="px-5 py-2.5 rounded-lg bg-[#B85C6F] text-white text-sm font-medium hover:bg-[#A34D5F] transition-colors"
+              className="px-5 py-2.5 rounded-xl bg-[#D91A6B] text-white text-sm font-semibold hover:bg-[#BD145B] transition-colors"
             >
               Return to Workspace
             </button>

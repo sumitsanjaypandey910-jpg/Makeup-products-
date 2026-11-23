@@ -1,5 +1,20 @@
 import React from 'react';
-import { Calendar, ArrowUpRight, Sparkles, UserPlus } from 'lucide-react';
+import {
+  Users,
+  UserPlus,
+  Calendar,
+  ScanFace,
+  History,
+  Sparkles,
+  Scissors,
+  Receipt,
+  MessageSquare,
+  BarChart3,
+  Clock,
+  AlertTriangle,
+  Wallet,
+  ArrowUpRight,
+} from 'lucide-react';
 import type {
   Appointment,
   Customer,
@@ -14,7 +29,7 @@ import {
   computeStaffLeaderboard,
   formatCurrency,
 } from '../utils/analytics';
-import { MONTHLY_PERFORMANCE_SERIES, GENERATED_ASSETS } from '../data/seedData';
+import { MONTHLY_PERFORMANCE_SERIES } from '../data/seedData';
 import { HorizontalBarBreakdown, RevenueAppointmentsChart } from './Charts';
 
 interface DashboardViewProps {
@@ -27,6 +42,27 @@ interface DashboardViewProps {
   onNavigate: (tab: NavTab) => void;
   onOpenNewAppointment: () => void;
   onOpenNewCustomer: () => void;
+}
+
+function LotusMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 36 36" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M18 6C15.5 11.2 14 15.8 14 20.2C14 23.8 15.8 26.5 18 28C20.2 26.5 22 23.8 22 20.2C22 15.8 20.5 11.2 18 6Z"
+        fill="currentColor"
+      />
+      <path
+        d="M11.6 13.5C9.2 15.2 7.2 18.4 7.5 22.1C7.8 25.4 10.6 27.6 14.5 28C12.8 24.4 12.1 19.6 11.6 13.5Z"
+        fill="currentColor"
+        fillOpacity="0.88"
+      />
+      <path
+        d="M24.4 13.5C26.8 15.2 28.8 18.4 28.5 22.1C28.2 25.4 25.4 27.6 21.5 28C23.2 24.4 23.9 19.6 24.4 13.5Z"
+        fill="currentColor"
+        fillOpacity="0.88"
+      />
+    </svg>
+  );
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -45,161 +81,245 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const metrics = computeDashboardMetrics(customers, appointments, invoices, today, monthPrefix);
   const leaderboard = computeStaffLeaderboard(staff, appointments);
   const todaysList = appointments.filter((a) => a.date === today);
+  const unpaidCount = invoices.filter((i) => i.paymentStatus !== 'Paid').length;
 
   const kpis = [
     {
-      label: 'Total Customers',
+      label: 'Active Customers',
       value: String(metrics.totalCustomers),
-      detail: `${metrics.returningCustomers} returning · ${metrics.newCustomersThisMonth} new this month`,
+      subtext: `↑ +${metrics.newCustomersThisMonth} this month`,
+      subTone: 'text-emerald-600 font-medium',
+      tileBg: 'bg-[#5B4CE6]',
+      icon: Users,
+      onClick: () => onNavigate('customers'),
     },
     {
-      label: "Today's Appointments",
+      label: "Today's Bookings",
       value: String(metrics.todaysAppointments),
-      detail: `${todaysList.filter((a) => a.status === 'Confirmed').length} confirmed · ${todaysList.filter((a) => a.status === 'Pending').length} pending`,
+      subtext: `${todaysList.filter((a) => a.status === 'Confirmed').length} confirmed · ${todaysList.filter((a) => a.status === 'Pending').length} pending`,
+      subTone: 'text-[#6B7280]',
+      tileBg: 'bg-[#F59E0B]',
+      icon: Calendar,
+      onClick: () => onNavigate('appointments'),
     },
     {
-      label: 'Monthly Revenue',
+      label: 'Skin Observations',
+      value: String(skinScans.length),
+      subtext: `${metrics.retentionRate}% retention rate`,
+      subTone: 'text-[#6B7280]',
+      tileBg: 'bg-[#EF4444]',
+      icon: ScanFace,
+      onClick: () => onNavigate('skin_progress'),
+    },
+    {
+      label: 'Paid Revenue',
       value: formatCurrency(metrics.monthlyRevenue, parlour.currency),
-      detail: `Target ${formatCurrency(parlour.monthlyRevenueTarget, parlour.currency)}`,
+      subtext: `Target ${formatCurrency(parlour.monthlyRevenueTarget, parlour.currency)}`,
+      subTone: 'text-[#6B7280]',
+      tileBg: 'bg-[#10B981]',
+      icon: Wallet,
+      onClick: () => onNavigate('billing'),
     },
     {
-      label: 'Pending Payments',
+      label: 'Pending Invoices',
       value: formatCurrency(metrics.pendingPayments, parlour.currency),
-      detail: `${metrics.retentionRate}% retention rate`,
+      subtext: `${unpaidCount} awaiting collection`,
+      subTone: metrics.pendingPayments > 0 ? 'text-rose-600 font-medium' : 'text-[#6B7280]',
+      tileBg: 'bg-[#F97316]',
+      icon: AlertTriangle,
+      onClick: () => onNavigate('billing'),
+    },
+  ];
+
+  const shortcuts = [
+    {
+      title: 'Customers',
+      subtitle: 'Manage client profiles',
+      tileBg: 'bg-[#5B4CE6]',
+      icon: Users,
+      action: () => onNavigate('customers'),
+    },
+    {
+      title: 'New Customer',
+      subtitle: 'Add client profile',
+      tileBg: 'bg-[#8B5CF6]',
+      icon: UserPlus,
+      action: onOpenNewCustomer,
+    },
+    {
+      title: 'Appointments',
+      subtitle: 'Studio calendar view',
+      tileBg: 'bg-[#2563EB]',
+      icon: Clock,
+      action: onOpenNewAppointment,
+    },
+    {
+      title: 'AI Face Scanner',
+      subtitle: 'Cosmetic skin scan',
+      tileBg: 'bg-[#EC4899]',
+      icon: ScanFace,
+      action: () => onNavigate('skin_scanner'),
+    },
+    {
+      title: 'Skin Progress',
+      subtitle: 'Before & after timeline',
+      tileBg: 'bg-[#0D9488]',
+      icon: History,
+      action: () => onNavigate('skin_progress'),
+    },
+    {
+      title: 'Beauty Assistant',
+      subtitle: 'AI care suggestions',
+      tileBg: 'bg-[#3B82F6]',
+      icon: Sparkles,
+      action: () => onNavigate('ai_assistant'),
+    },
+    {
+      title: 'Services',
+      subtitle: 'Catalog & packages',
+      tileBg: 'bg-[#F59E0B]',
+      icon: Scissors,
+      action: () => onNavigate('services'),
+    },
+    {
+      title: 'Billing & POS',
+      subtitle: 'Invoices & payments',
+      tileBg: 'bg-[#10B981]',
+      icon: Receipt,
+      action: () => onNavigate('billing'),
+    },
+    {
+      title: 'WhatsApp Care',
+      subtitle: 'Reminders & feedback',
+      tileBg: 'bg-[#F97316]',
+      icon: MessageSquare,
+      action: () => onNavigate('communication'),
+    },
+    {
+      title: 'Reports',
+      subtitle: 'Retention & growth',
+      tileBg: 'bg-[#EF4444]',
+      icon: BarChart3,
+      action: () => onNavigate('reports'),
     },
   ];
 
   return (
     <div className="space-y-6">
-      {/* Editorial Studio Welcome Strip */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        <div className="lg:col-span-8 bg-white border border-[#E8E0D8] rounded-2xl p-6 sm:p-7 flex flex-col justify-between">
-          <div>
-            <p className="text-xs text-[#6E645D] mb-2">
+      {/* Vibrant Gradient Welcome Hero Banner */}
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#D91A6B] via-[#EC2F81] to-[#F25596] px-6 py-6 sm:px-8 sm:py-7 text-white shadow-[0_12px_30px_rgba(217,26,107,0.22)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+          <div className="space-y-1.5 min-w-0">
+            <p className="text-xs font-medium text-white/80">
               {parlour.city} · {parlour.plan} Plan
             </p>
-            <h1 className="font-display text-3xl sm:text-4xl font-semibold text-[#1E1916] tracking-tight leading-tight text-balance">
-              {parlour.name} Overview
+            <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-white text-balance">
+              Welcome back, {parlour.name}
             </h1>
-            <p className="text-sm text-[#6E645D] mt-2 max-w-2xl leading-relaxed">
-              Manage appointments, client skincare journeys, cosmetic facial scans, and studio
-              revenue in one calm workspace.
+            <p className="text-sm text-white/90 max-w-2xl">
+              Manage appointments, cosmetic skin scans, billing, and client retention from one
+              studio command center.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3 mt-6">
-            <button
-              type="button"
-              onClick={onOpenNewAppointment}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#B85C6F] text-white text-sm font-medium hover:bg-[#A34D5F] transition-colors whitespace-nowrap shrink-0"
-            >
-              <Calendar className="w-4 h-4" />
-              Book Appointment
-            </button>
+
+          <div className="flex items-center gap-3 shrink-0">
             <button
               type="button"
               onClick={() => onNavigate('skin_scanner')}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#F4EFEA] text-[#1E1916] text-sm font-medium hover:bg-[#EAE1D8] transition-colors whitespace-nowrap shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-[#D91A6B] text-xs font-semibold shadow-sm hover:bg-white/95 transition-colors whitespace-nowrap"
             >
-              <Sparkles className="w-4 h-4 text-[#B08B4F]" />
-              Launch AI Skin Scan
+              <ScanFace className="w-4 h-4" />
+              Launch Skin Scan
             </button>
-            <button
-              type="button"
-              onClick={onOpenNewCustomer}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-[#E8E0D8] text-[#1E1916] text-sm font-medium hover:bg-[#FAF8F6] transition-colors whitespace-nowrap shrink-0"
-            >
-              <UserPlus className="w-4 h-4 text-[#6E645D]" />
-              Add Customer
-            </button>
-          </div>
-        </div>
-
-        <div className="lg:col-span-4 relative rounded-2xl overflow-hidden border border-[#E8E0D8] min-h-[210px] bg-[#F4EFEA]">
-          <img
-            src={GENERATED_ASSETS.salonSuite}
-            alt="Atelier treatment suite interior"
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-cover lg:absolute lg:inset-0"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent flex flex-col justify-end p-5 text-white">
-            <p className="text-xs text-white/80">Latest Skin Scans · {skinScans.length} saved</p>
-            <p className="font-display text-xl font-medium mt-0.5">
-              Cosmetic Skin Intelligence
-            </p>
-            <button
-              type="button"
-              onClick={() => onNavigate('skin_progress')}
-              className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-white underline underline-offset-4 hover:text-[#F7E6CA] w-fit whitespace-nowrap"
-            >
-              View Progress Timeline
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </button>
+            <div className="hidden sm:flex w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm items-center justify-center shrink-0">
+              <LotusMark className="w-8 h-8 text-white" />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 4-Column KPI Strip */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {kpis.map((kpi) => (
-          <div
-            key={kpi.label}
-            className="bg-white border border-[#E8E0D8] rounded-2xl p-5 flex flex-col justify-between"
-          >
-            <span className="text-xs font-medium text-[#6E645D]">{kpi.label}</span>
-            <p className="font-display text-3xl font-semibold text-[#1E1916] tabular-nums mt-2">
-              {kpi.value}
-            </p>
-            <p className="text-xs text-[#6E645D] tabular-nums mt-2">{kpi.detail}</p>
-          </div>
-        ))}
+      {/* 5-Column KPI Stat Cards Row */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        {kpis.map((kpi) => {
+          const Icon = kpi.icon;
+          return (
+            <button
+              key={kpi.label}
+              type="button"
+              onClick={kpi.onClick}
+              className="text-left bg-white border border-[#E5E7EB] rounded-2xl p-5 shadow-[0_4px_18px_rgba(15,23,42,0.035)] hover:border-[#D91A6B]/35 hover:shadow-md transition-all flex flex-col justify-between"
+            >
+              <div
+                className={`w-11 h-11 rounded-xl ${kpi.tileBg} text-white flex items-center justify-center shadow-sm`}
+              >
+                <Icon className="w-5 h-5" />
+              </div>
+              <div className="mt-4">
+                <p className="font-display text-2xl sm:text-3xl font-bold text-[#111827] tabular-nums">
+                  {kpi.value}
+                </p>
+                <p className="text-xs font-medium text-[#4B5563] mt-1">{kpi.label}</p>
+                <p className={`text-xs tabular-nums mt-1.5 ${kpi.subTone}`}>{kpi.subtext}</p>
+              </div>
+            </button>
+          );
+        })}
       </section>
 
-      {/* Secondary KPI Summary Bar (New / Returning / Retention / Popular) */}
-      <section className="bg-white border border-[#E8E0D8] rounded-2xl px-6 py-4 grid grid-cols-2 md:grid-cols-4 gap-4 divide-y md:divide-y-0 md:divide-x divide-[#EAE3DC]">
-        <div className="pt-1 md:pt-0">
-          <p className="text-xs text-[#6E645D]">New Customers (Month)</p>
-          <p className="text-lg font-semibold text-[#1E1916] font-mono tabular-nums mt-0.5">
-            {metrics.newCustomersThisMonth}
-          </p>
+      {/* Quick Shortcuts 2x5 Grid */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-lg font-bold text-[#111827]">Quick Shortcuts</h2>
+          <span className="text-xs text-[#6B7280]">
+            {metrics.newCustomersThisMonth} new · {metrics.returningCustomers} returning ·{' '}
+            {metrics.popularTreatments[0]?.name ?? 'Studio Active'}
+          </span>
         </div>
-        <div className="pt-3 md:pt-0 md:pl-5">
-          <p className="text-xs text-[#6E645D]">Returning Customers</p>
-          <p className="text-lg font-semibold text-[#1E1916] font-mono tabular-nums mt-0.5">
-            {metrics.returningCustomers}
-          </p>
-        </div>
-        <div className="pt-3 md:pt-0 md:pl-5">
-          <p className="text-xs text-[#6E645D]">Customer Retention Rate</p>
-          <p className="text-lg font-semibold text-[#1E1916] font-mono tabular-nums mt-0.5">
-            {metrics.retentionRate}%
-          </p>
-        </div>
-        <div className="pt-3 md:pt-0 md:pl-5">
-          <p className="text-xs text-[#6E645D]">Top Popular Treatment</p>
-          <p className="text-sm font-semibold text-[#1E1916] truncate mt-1">
-            {metrics.popularTreatments[0]?.name ?? 'No treatments yet'}
-          </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3.5">
+          {shortcuts.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.title}
+                type="button"
+                onClick={item.action}
+                className="group bg-white border border-[#E5E7EB] rounded-xl p-3.5 shadow-[0_2px_10px_rgba(15,23,42,0.025)] hover:border-[#D91A6B]/40 hover:shadow-md transition-all flex items-center gap-3 text-left"
+              >
+                <div
+                  className={`w-10 h-10 rounded-xl ${item.tileBg} text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform`}
+                >
+                  <Icon className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-[#111827] truncate">{item.title}</p>
+                  <p className="text-xs text-[#6B7280] truncate">{item.subtitle}</p>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </section>
 
       {/* Revenue & Appointments Chart + Popular Treatments */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-7 bg-white border border-[#E8E0D8] rounded-2xl p-6">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div className="lg:col-span-7 bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-[0_4px_18px_rgba(15,23,42,0.035)]">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="font-display text-2xl font-semibold text-[#1E1916]">
+              <h2 className="font-display text-xl font-bold text-[#111827]">
                 Revenue &amp; Visit Volume
               </h2>
-              <p className="text-xs text-[#6E645D]">
+              <p className="text-xs text-[#6B7280]">
                 Monthly collected revenue alongside completed salon bookings
               </p>
             </div>
             <button
               type="button"
               onClick={() => onNavigate('reports')}
-              className="text-xs font-medium text-[#B85C6F] hover:underline whitespace-nowrap shrink-0"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-[#D91A6B] hover:underline whitespace-nowrap shrink-0"
             >
               Full Analytics
+              <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
           </div>
           <RevenueAppointmentsChart
@@ -208,20 +328,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
         </div>
 
-        <div className="lg:col-span-5 bg-white border border-[#E8E0D8] rounded-2xl p-6">
+        <div className="lg:col-span-5 bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-[0_4px_18px_rgba(15,23,42,0.035)]">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="font-display text-2xl font-semibold text-[#1E1916]">
-                Popular Treatments
-              </h2>
-              <p className="text-xs text-[#6E645D]">Ranked by booking value and frequency</p>
+              <h2 className="font-display text-xl font-bold text-[#111827]">Popular Treatments</h2>
+              <p className="text-xs text-[#6B7280]">Ranked by booking value and frequency</p>
             </div>
             <button
               type="button"
               onClick={() => onNavigate('services')}
-              className="text-xs font-medium text-[#B85C6F] hover:underline whitespace-nowrap shrink-0"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-[#D91A6B] hover:underline whitespace-nowrap shrink-0"
             >
               Service Catalog
+              <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
           </div>
           <HorizontalBarBreakdown
@@ -235,54 +354,54 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </section>
 
-      {/* Today's Schedule & Recent Customer Activity + Staff Performance */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-7 bg-white border border-[#E8E0D8] rounded-2xl p-6">
+      {/* Today's Schedule & Recent Customer Activity + Specialist Performance */}
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div className="lg:col-span-7 bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-[0_4px_18px_rgba(15,23,42,0.035)]">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-2xl font-semibold text-[#1E1916]">
+            <h2 className="font-display text-xl font-bold text-[#111827]">
               Today&apos;s Appointments &amp; Activity
             </h2>
             <button
               type="button"
               onClick={() => onNavigate('appointments')}
-              className="text-xs font-medium text-[#B85C6F] hover:underline whitespace-nowrap shrink-0"
+              className="text-xs font-semibold text-[#D91A6B] hover:underline whitespace-nowrap shrink-0"
             >
               Open Calendar
             </button>
           </div>
           {todaysList.length === 0 ? (
-            <p className="text-sm text-[#6E645D] py-8 text-center">
+            <p className="text-sm text-[#6B7280] py-8 text-center">
               No appointments scheduled for today.
             </p>
           ) : (
-            <div className="divide-y divide-[#EAE3DC]">
+            <div className="divide-y divide-[#F1F5F9]">
               {todaysList.map((appt) => (
                 <div
                   key={appt.id}
                   className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-[#1E1916] truncate">
+                    <p className="text-sm font-semibold text-[#111827] truncate">
                       {appt.customerName}
                     </p>
-                    <p className="text-xs text-[#6E645D] truncate">
+                    <p className="text-xs text-[#6B7280] truncate">
                       {appt.serviceName} · Specialist: {appt.staffName}
                     </p>
                   </div>
                   <div className="flex items-center gap-4 text-xs tabular-nums shrink-0">
-                    <span className="font-mono text-[#1E1916]">{appt.time}</span>
-                    <span className="font-mono text-[#6E645D]">
+                    <span className="font-mono text-[#111827] font-medium">{appt.time}</span>
+                    <span className="font-mono text-[#6B7280]">
                       {formatCurrency(appt.price, parlour.currency)}
                     </span>
                     <span
-                      className={`font-medium ${
+                      className={`font-semibold ${
                         appt.status === 'Confirmed'
-                          ? 'text-emerald-700'
+                          ? 'text-emerald-600'
                           : appt.status === 'Completed'
-                          ? 'text-[#1E1916]'
+                          ? 'text-[#5B4CE6]'
                           : appt.status === 'Cancelled'
-                          ? 'text-rose-700'
-                          : 'text-amber-700'
+                          ? 'text-rose-600'
+                          : 'text-amber-600'
                       }`}
                     >
                       {appt.status}
@@ -294,33 +413,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           )}
         </div>
 
-        <div className="lg:col-span-5 bg-white border border-[#E8E0D8] rounded-2xl p-6">
+        <div className="lg:col-span-5 bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-[0_4px_18px_rgba(15,23,42,0.035)]">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-2xl font-semibold text-[#1E1916]">
+            <h2 className="font-display text-xl font-bold text-[#111827]">
               Specialist Performance
             </h2>
             <button
               type="button"
               onClick={() => onNavigate('staff')}
-              className="text-xs font-medium text-[#B85C6F] hover:underline whitespace-nowrap shrink-0"
+              className="text-xs font-semibold text-[#D91A6B] hover:underline whitespace-nowrap shrink-0"
             >
               Manage Staff
             </button>
           </div>
-          <div className="divide-y divide-[#EAE3DC]">
+          <div className="divide-y divide-[#F1F5F9]">
             {leaderboard.map((member) => (
               <div key={member.id} className="py-3 flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-[#1E1916] truncate">{member.name}</p>
-                  <p className="text-xs text-[#6E645D] truncate">
+                  <p className="text-sm font-semibold text-[#111827] truncate">{member.name}</p>
+                  <p className="text-xs text-[#6B7280] truncate">
                     {member.role} · {member.attendanceStatus}
                   </p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-mono font-medium text-[#1E1916] tabular-nums">
+                  <p className="text-sm font-mono font-semibold text-[#111827] tabular-nums">
                     {formatCurrency(member.revenueGenerated, parlour.currency)}
                   </p>
-                  <p className="text-xs text-[#6E645D] tabular-nums">
+                  <p className="text-xs text-[#6B7280] tabular-nums">
                     {member.completedCount} services · {member.rating.toFixed(1)} ★
                   </p>
                 </div>

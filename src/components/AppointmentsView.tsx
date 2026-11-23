@@ -45,7 +45,6 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [reschedulingAppt, setReschedulingAppt] = useState<Appointment | null>(null);
 
-  // Booking / Reschedule state
   const [customerId, setCustomerId] = useState(customers[0]?.id ?? '');
   const [serviceId, setServiceId] = useState(services[0]?.id ?? '');
   const [staffId, setStaffId] = useState(staff[0]?.id ?? '');
@@ -131,18 +130,23 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl font-semibold text-[#1E1916]">
-            Appointments &amp; Studio Calendar
-          </h1>
-          <p className="text-sm text-[#6E645D] mt-1">
-            Schedule treatments, assign specialists, manage confirmations, and reschedule bookings.
-          </p>
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-[#2563EB] text-white flex items-center justify-center shadow-sm shrink-0">
+            <CalendarIcon className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#111827]">
+              Appointments &amp; Studio Calendar
+            </h1>
+            <p className="text-sm text-[#6B7280] mt-0.5">
+              Schedule treatments, assign specialists, manage confirmations, and reschedule bookings.
+            </p>
+          </div>
         </div>
         <button
           type="button"
           onClick={openNewBooking}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#B85C6F] text-white text-sm font-medium hover:bg-[#A34D5F] transition-colors whitespace-nowrap shrink-0"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#D91A6B] text-white text-sm font-semibold hover:bg-[#BD145B] transition-colors whitespace-nowrap shrink-0 shadow-xs"
         >
           <Plus className="w-4 h-4" />
           Book Appointment
@@ -150,16 +154,16 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
       </div>
 
       {/* Controls Bar */}
-      <div className="bg-white border border-[#E8E0D8] rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 shadow-[0_4px_18px_rgba(15,23,42,0.03)] flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 p-1 bg-[#F4EFEA] rounded-lg">
+          <div className="flex items-center gap-1 p-1 bg-[#F3F4F8] rounded-xl">
             <button
               type="button"
               onClick={() => setViewMode('daily')}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
                 viewMode === 'daily'
-                  ? 'bg-white text-[#1E1916]'
-                  : 'text-[#6E645D] hover:text-[#1E1916]'
+                  ? 'bg-white text-[#D91A6B] shadow-xs'
+                  : 'text-[#6B7280] hover:text-[#111827]'
               }`}
             >
               Daily View
@@ -167,10 +171,10 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
             <button
               type="button"
               onClick={() => setViewMode('weekly')}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
                 viewMode === 'weekly'
-                  ? 'bg-white text-[#1E1916]'
-                  : 'text-[#6E645D] hover:text-[#1E1916]'
+                  ? 'bg-white text-[#D91A6B] shadow-xs'
+                  : 'text-[#6B7280] hover:text-[#111827]'
               }`}
             >
               Weekly Calendar
@@ -183,21 +187,21 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
               aria-label="Select appointment date"
-              className="px-3 py-1.5 text-xs font-mono border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+              className="px-3 py-1.5 text-xs font-mono border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
             />
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-1 p-1 bg-[#F4EFEA] rounded-lg">
+        <div className="flex flex-wrap items-center gap-1 p-1 bg-[#F3F4F8] rounded-xl">
           {(['All', 'Pending', 'Confirmed', 'Completed', 'Cancelled'] as const).map((st) => (
             <button
               key={st}
               type="button"
               onClick={() => setStatusFilter(st)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
                 statusFilter === st
-                  ? 'bg-white text-[#1E1916]'
-                  : 'text-[#6E645D] hover:text-[#1E1916]'
+                  ? 'bg-white text-[#D91A6B] shadow-xs'
+                  : 'text-[#6B7280] hover:text-[#111827]'
               }`}
             >
               {st}
@@ -216,7 +220,7 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
             return (
               <div
                 key={d}
-                className="bg-white border border-[#E8E0D8] rounded-2xl p-3.5 flex flex-col min-h-[260px]"
+                className="bg-white border border-[#E5E7EB] rounded-2xl p-3.5 flex flex-col min-h-[260px] shadow-[0_4px_14px_rgba(15,23,42,0.03)]"
               >
                 <button
                   type="button"
@@ -224,28 +228,28 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
                     setSelectedDate(d);
                     setViewMode('daily');
                   }}
-                  className="text-left border-b border-[#EAE3DC] pb-2 mb-3 hover:text-[#B85C6F]"
+                  className="text-left border-b border-[#F1F5F9] pb-2 mb-3 hover:text-[#D91A6B]"
                 >
-                  <span className="text-xs font-mono font-semibold text-[#1E1916]">{d}</span>
-                  <span className="block text-[11px] text-[#6E645D]">
+                  <span className="text-xs font-mono font-semibold text-[#111827]">{d}</span>
+                  <span className="block text-[11px] text-[#6B7280]">
                     {dayAppts.length} bookings
                   </span>
                 </button>
                 <div className="space-y-2.5 flex-1">
                   {dayAppts.length === 0 ? (
-                    <p className="text-[11px] text-[#8A7F77] italic">Open day</p>
+                    <p className="text-[11px] text-[#9CA3AF] italic">Open day</p>
                   ) : (
                     dayAppts.map((a) => (
                       <div
                         key={a.id}
-                        className="p-2.5 rounded-xl bg-[#FAF8F6] border border-[#E8E0D8] text-xs space-y-1"
+                        className="p-2.5 rounded-xl bg-[#F8FAFC] border border-[#E5E7EB] text-xs space-y-1"
                       >
                         <div className="flex items-center justify-between font-mono text-[11px]">
                           <span>{a.time}</span>
-                          <span className="text-[#B85C6F]">{a.status}</span>
+                          <span className="text-[#D91A6B] font-semibold">{a.status}</span>
                         </div>
-                        <p className="font-medium text-[#1E1916] truncate">{a.customerName}</p>
-                        <p className="text-[11px] text-[#6E645D] truncate">{a.serviceName}</p>
+                        <p className="font-semibold text-[#111827] truncate">{a.customerName}</p>
+                        <p className="text-[11px] text-[#6B7280] truncate">{a.serviceName}</p>
                       </div>
                     ))
                   )}
@@ -255,45 +259,45 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
           })}
         </div>
       ) : (
-        <div className="bg-white border border-[#E8E0D8] rounded-2xl overflow-hidden">
+        <div className="bg-white border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-[0_4px_18px_rgba(15,23,42,0.03)]">
           {visibleAppointments.length === 0 ? (
             <div className="p-10 text-center">
-              <CalendarIcon className="w-8 h-8 text-[#B08B4F] mx-auto mb-2" />
-              <p className="text-sm text-[#6E645D]">
+              <CalendarIcon className="w-8 h-8 text-[#D91A6B] mx-auto mb-2" />
+              <p className="text-sm text-[#6B7280]">
                 No appointments found for {selectedDate} with the selected status.
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-[#EAE3DC]">
+            <div className="divide-y divide-[#F1F5F9]">
               {visibleAppointments
                 .slice()
                 .sort((a, b) => a.time.localeCompare(b.time))
                 .map((appt) => (
                   <div
                     key={appt.id}
-                    className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                    className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-[#F8FAFC] transition-colors"
                   >
                     <div className="flex items-start gap-4 min-w-0">
-                      <div className="px-3 py-2 rounded-xl bg-[#F4EFEA] text-center shrink-0">
-                        <span className="block font-mono text-sm font-semibold text-[#1E1916] tabular-nums">
+                      <div className="px-3 py-2 rounded-xl bg-[#FDF0F6] border border-[#FBCFE8] text-center shrink-0">
+                        <span className="block font-mono text-sm font-bold text-[#D91A6B] tabular-nums">
                           {appt.time}
                         </span>
-                        <span className="block text-[11px] text-[#6E645D] tabular-nums">
+                        <span className="block text-[11px] text-[#6B7280] tabular-nums">
                           {appt.durationMin}m
                         </span>
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-[#1E1916]">
+                        <p className="text-sm font-semibold text-[#111827]">
                           {appt.customerName}
                         </p>
-                        <p className="text-xs text-[#6E645D] mt-0.5">
+                        <p className="text-xs text-[#6B7280] mt-0.5">
                           {appt.serviceName} · Specialist: {appt.staffName} ·{' '}
-                          <span className="font-mono">
+                          <span className="font-mono text-[#111827] font-medium">
                             {formatCurrency(appt.price, parlour.currency)}
                           </span>
                         </p>
                         {appt.notes && (
-                          <p className="text-xs text-[#8A7F77] mt-1">{appt.notes}</p>
+                          <p className="text-xs text-[#6B7280] mt-1">{appt.notes}</p>
                         )}
                       </div>
                     </div>
@@ -305,7 +309,7 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
                         onChange={(e) =>
                           onUpdateStatus(appt.id, e.target.value as AppointmentStatus)
                         }
-                        className="px-3 py-1.5 text-xs font-medium border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                        className="px-3 py-1.5 text-xs font-semibold border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
                       >
                         <option value="Pending">Pending</option>
                         <option value="Confirmed">Confirmed</option>
@@ -316,7 +320,7 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
                       <button
                         type="button"
                         onClick={() => openReschedule(appt)}
-                        className="px-3 py-1.5 text-xs font-medium border border-[#E8E0D8] rounded-lg text-[#1E1916] hover:bg-[#FAF8F6] whitespace-nowrap"
+                        className="px-3 py-1.5 text-xs font-semibold border border-[#E5E7EB] rounded-xl text-[#111827] hover:bg-white whitespace-nowrap"
                       >
                         Reschedule
                       </button>
@@ -325,7 +329,7 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
                         <button
                           type="button"
                           onClick={() => onUpdateStatus(appt.id, 'Cancelled')}
-                          className="px-3 py-1.5 text-xs font-medium border border-rose-200 rounded-lg text-rose-700 hover:bg-rose-50 whitespace-nowrap"
+                          className="px-3 py-1.5 text-xs font-semibold border border-rose-200 rounded-xl text-rose-600 hover:bg-rose-50 whitespace-nowrap"
                         >
                           Cancel
                         </button>
@@ -339,14 +343,16 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
       )}
 
       {/* Future-Ready Automated Reminder Module */}
-      <section className="bg-white border border-[#E8E0D8] rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <section className="bg-white border border-[#E5E7EB] rounded-2xl p-5 shadow-[0_4px_18px_rgba(15,23,42,0.03)] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-start gap-3">
-          <Bell className="w-5 h-5 text-[#B08B4F] shrink-0 mt-0.5" />
+          <div className="w-10 h-10 rounded-xl bg-[#F59E0B] text-white flex items-center justify-center shrink-0">
+            <Bell className="w-4 h-4" />
+          </div>
           <div>
-            <h2 className="font-display text-xl font-semibold text-[#1E1916]">
+            <h2 className="font-display text-lg font-bold text-[#111827]">
               Automated Reminder Schedule (Gateway Setup Required)
             </h2>
-            <p className="text-xs text-[#6E645D] mt-0.5 leading-relaxed">
+            <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed">
               Configure automated dispatch windows below. External WhatsApp Business Cloud API /
               SMS webhook credentials are not yet connected in this workspace — reminders are
               queued for manual dispatch in the Communication hub.
@@ -354,24 +360,24 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-4 text-xs shrink-0">
-          <label className="inline-flex items-center gap-2 text-[#1E1916]">
+          <label className="inline-flex items-center gap-2 text-[#111827] font-medium">
             <input
               type="checkbox"
               checked={reminder24h}
               onChange={(e) => setReminder24h(e.target.checked)}
-              className="rounded border-[#E8E0D8]"
+              className="rounded border-[#E5E7EB] accent-[#D91A6B]"
             />
-            <Clock className="w-3.5 h-3.5 text-[#6E645D]" />
+            <Clock className="w-3.5 h-3.5 text-[#6B7280]" />
             24h before visit
           </label>
-          <label className="inline-flex items-center gap-2 text-[#1E1916]">
+          <label className="inline-flex items-center gap-2 text-[#111827] font-medium">
             <input
               type="checkbox"
               checked={reminder2h}
               onChange={(e) => setReminder2h(e.target.checked)}
-              className="rounded border-[#E8E0D8]"
+              className="rounded border-[#E5E7EB] accent-[#D91A6B]"
             />
-            <Clock className="w-3.5 h-3.5 text-[#6E645D]" />
+            <Clock className="w-3.5 h-3.5 text-[#6B7280]" />
             2h before visit
           </label>
         </div>
@@ -385,11 +391,11 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
           aria-modal="true"
           aria-labelledby="appt-modal-title"
         >
-          <div className="bg-white border border-[#E8E0D8] rounded-2xl max-w-md w-full p-6">
+          <div className="bg-white border border-[#E5E7EB] rounded-2xl max-w-md w-full p-6 shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <h2
                 id="appt-modal-title"
-                className="font-display text-2xl font-semibold text-[#1E1916]"
+                className="font-display text-xl font-bold text-[#111827]"
               >
                 {reschedulingAppt ? 'Reschedule Appointment' : 'Book New Appointment'}
               </h2>
@@ -397,7 +403,7 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
                 type="button"
                 onClick={() => setModalOpen(false)}
                 aria-label="Close appointment modal"
-                className="p-1.5 rounded-lg text-[#6E645D] hover:bg-[#F4EFEA]"
+                className="p-1.5 rounded-xl text-[#6B7280] hover:bg-[#F3F4F8]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -407,7 +413,7 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
               <div>
                 <label
                   htmlFor="appt-client"
-                  className="block text-xs font-medium text-[#1E1916] mb-1"
+                  className="block text-xs font-semibold text-[#111827] mb-1"
                 >
                   Customer
                 </label>
@@ -415,7 +421,7 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
                   id="appt-client"
                   value={customerId}
                   onChange={(e) => setCustomerId(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                  className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
                 >
                   {customers.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -428,7 +434,7 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
               <div>
                 <label
                   htmlFor="appt-service"
-                  className="block text-xs font-medium text-[#1E1916] mb-1"
+                  className="block text-xs font-semibold text-[#111827] mb-1"
                 >
                   Service / Package
                 </label>
@@ -436,7 +442,7 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
                   id="appt-service"
                   value={serviceId}
                   onChange={(e) => setServiceId(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                  className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
                 >
                   {services.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -449,7 +455,7 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
               <div>
                 <label
                   htmlFor="appt-staff"
-                  className="block text-xs font-medium text-[#1E1916] mb-1"
+                  className="block text-xs font-semibold text-[#111827] mb-1"
                 >
                   Assigned Specialist
                 </label>
@@ -457,7 +463,7 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
                   id="appt-staff"
                   value={staffId}
                   onChange={(e) => setStaffId(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                  className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
                 >
                   {staff.map((st) => (
                     <option key={st.id} value={st.id}>
@@ -471,7 +477,7 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
                 <div>
                   <label
                     htmlFor="appt-date"
-                    className="block text-xs font-medium text-[#1E1916] mb-1"
+                    className="block text-xs font-semibold text-[#111827] mb-1"
                   >
                     Date
                   </label>
@@ -481,13 +487,13 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
                     required
-                    className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                    className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="appt-time"
-                    className="block text-xs font-medium text-[#1E1916] mb-1"
+                    className="block text-xs font-semibold text-[#111827] mb-1"
                   >
                     Time
                   </label>
@@ -497,7 +503,7 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
                     required
-                    className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                    className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
                   />
                 </div>
               </div>
@@ -505,7 +511,7 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
               <div>
                 <label
                   htmlFor="appt-notes"
-                  className="block text-xs font-medium text-[#1E1916] mb-1"
+                  className="block text-xs font-semibold text-[#111827] mb-1"
                 >
                   Consultation / Booking Notes
                 </label>
@@ -514,7 +520,7 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
                   rows={2}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-[#E8E0D8] rounded-lg bg-[#FAF8F6]"
+                  className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl bg-[#F8FAFC]"
                 />
               </div>
 
@@ -522,13 +528,13 @@ export const AppointmentsView: React.FC<AppointmentsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-lg border border-[#E8E0D8] text-sm text-[#1E1916]"
+                  className="px-4 py-2 rounded-xl border border-[#E5E7EB] text-sm text-[#111827]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-[#B85C6F] text-white text-sm font-medium hover:bg-[#A34D5F]"
+                  className="px-4 py-2 rounded-xl bg-[#D91A6B] text-white text-sm font-semibold hover:bg-[#BD145B]"
                 >
                   {reschedulingAppt ? 'Update Booking' : 'Confirm Booking'}
                 </button>

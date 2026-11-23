@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-display: "Outfit", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  --color-alabaster: #FAF8F6;
-  --color-linen: #F4EFEA;
-  --color-stone-line: #E8E0D8;
-  --color-espresso: #1E1916;
-  --color-taupe: #6E645D;
-  --color-blush: #B85C6F;
-  --color-blush-soft: #F9EFF1;
-  --color-gold: #B08B4F;
-  --color-gold-soft: #F7F1E5;
+  --color-canvas: #F3F4F8;
+  --color-surface-muted: #F8FAFC;
+  --color-border-hairline: #E5E7EB;
+  --color-ink: #111827;
+  --color-ink-muted: #6B7280;
+  --color-magenta: #D91A6B;
+  --color-magenta-hover: #BD145B;
+  --color-magenta-soft: #FDF0F6;
+  --color-indigo-tile: #5B4CE6;
 }
 
 @layer base {
   html,
   body {
-    background-color: #FAF8F6;
-    color: #1E1916;
+    background-color: #F3F4F8;
+    color: #111827;
     font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -29,7 +29,7 @@
   h1,
   h2,
   .font-display {
-    font-family: "Cormorant Garamond", Georgia, serif;
+    font-family: "Outfit", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   .tabular-nums {
